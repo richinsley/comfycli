@@ -258,14 +258,12 @@ func init() {
 
 	// add cobra subcommands
 	rootCmd.PersistentFlags().StringVarP(&CLIOptions.Host, "host", "", "127.0.0.1:8188", "Host address")
-	rootCmd.Flags().StringVarP(&CLIOptions.API, "api", "", "API", "Simple API title")
-	rootCmd.Flags().StringVarP(&CLIOptions.APIValues, "apivalues", "", "", "Path to API values JSON or '-' for stdin")
+	rootCmd.PersistentFlags().StringVarP(&CLIOptions.API, "api", "", "API", "Simple API title")
+	rootCmd.PersistentFlags().StringVarP(&CLIOptions.APIValues, "apivalues", "", "", "Path to API values JSON or '-' for stdin")
 	rootCmd.PersistentFlags().BoolVarP(&CLIOptions.Json, "json", "j", false, "Report all output as json")
-	rootCmd.Flags().StringVarP(&CLIOptions.GraphOutPath, "graphout", "g", "", "Path to write workflow graph JSON")
-	rootCmd.Flags().BoolVarP(&CLIOptions.InlineImages, "inlineimages", "i", false, "Output images to terminal with Inline Image Protocol")
-	rootCmd.Flags().BoolVarP(&CLIOptions.NoSaveData, "nosavedata", "n", false, "Do not save data to disk")
-	rootCmd.Flags().BoolVarP(&CLIOptions.DataToStdout, "stdout", "s", false, "Write node output data to stdout")
-	rootCmd.Flags().BoolVarP(&CLIOptions.Yes, "yes", "y", false, "Automatically answer yes on prompted questions")
+	rootCmd.PersistentFlags().StringVarP(&CLIOptions.GraphOutPath, "graphout", "g", "", "Path to write workflow graph JSON")
+	rootCmd.PersistentFlags().BoolVarP(&CLIOptions.DataToStdout, "stdout", "s", false, "Write node output data to stdout")
+	rootCmd.PersistentFlags().BoolVarP(&CLIOptions.Yes, "yes", "y", false, "Automatically answer yes on prompted questions")
 
 	// Set the Long field of rootCmd after CLIOptions.HomePath is populated
 	rootCmd.Long = getLongDescription()

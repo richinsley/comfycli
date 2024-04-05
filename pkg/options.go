@@ -22,6 +22,7 @@ type ComfyOptions struct {
 	HomePath     string
 	RecipesPath  string
 	Yes          bool // Automatically answer yes on prompted questions
+	OutputNodes  string
 	// API sub command options
 	APIValuesOnly bool // only output the values of the API nodes
 	Stdin         *bufio.Reader
