@@ -1,0 +1,30 @@
+{
+    "name": "SDXL",
+    "description": "Stable Diffusion XL",
+    "version": "1.0",
+    "recipe_format": "1.0",
+    "inherits": ["default"],
+    "models": [
+        {
+            "name": "sd_xl_base_1.0.safetensors",
+            "type": "checkpoints",
+            "base": "SDXL",
+            "save_path": "default",
+            "description": "Stable Diffusion XL base model",
+            "reference": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0",
+            "filename": "sd_xl_base_1.0.safetensors",
+            "url": "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors"
+        },
+        {
+            "name": "stable-diffusion-xl-refiner-1.0",
+            "type": "checkpoints",
+            "base": "SDXL",
+            "save_path": "default",
+            "description": "Stable Diffusion XL refiner model",
+            "reference": "https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0",
+            "filename": "sd_xl_refiner_1.0.safetensors",
+            "url": "https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0/resolve/main/sd_xl_refiner_1.0.safetensors"
+        }
+    ]
+  }
+  
