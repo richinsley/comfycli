@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"strings"
 
 	"github.com/richinsley/comfy2go/client"
 	"github.com/richinsley/comfy2go/graphapi"
@@ -44,7 +45,35 @@ func ProcessQueue(options *ComfyOptions, workflow string, parameters []CLIParame
 		},
 	}
 
-	c, graph, _, hasPipeLoop, missing, err := ClientWithWorkflow(options, workflow, parameters, callbacks)
+	c, graph, api, hasPipeLoop, missing, err := ClientWithWorkflow(options, workflow, parameters, callbacks)
+	if err != nil {
+		slog.Error("Failed to create comfyui client", err)
+		os.Exit(1)
+	}
+
+	// get any output nodes that were specified in the api
+	var outputnodes map[string]bool = make(map[string]bool)
+	if api != nil && api.OutputNodes != nil {
+		for _, n := range api.OutputNodes {
+			outputnodes[n.Title] = true
+		}
+	}
+
+	// if CLIOptions.OutputNodes is set, we'll use that instead
+	if options.OutputNodes != "" {
+		outputnodes = make(map[string]bool)
+		for _, n := range strings.Split(options.OutputNodes, ",") {
+			outputnodes[n] = true
+		}
+	}
+
+	outputnodeIDs := make(map[int]bool)
+	for _, n := range graph.Nodes {
+		if _, ok := outputnodes[n.Title]; ok {
+			outputnodeIDs[n.ID] = true
+		}
+	}
+
 	if missing != nil {
 		slog.Error("failed to get workflow: missing nodes", "missing", fmt.Sprintf("%v", missing))
 		os.Exit(1)
@@ -99,6 +128,13 @@ func ProcessQueue(options *ComfyOptions, workflow string, parameters []CLIParame
 			// * Subfolder is the subfolder in the output directory
 			// * Type is the type of the image temp/
 			for k, v := range qm.Data {
+				// if qm.NodeID is not in outputnodeIDs, then we ignore the data
+				if len(outputnodeIDs) != 0 {
+					if _, ok := outputnodeIDs[qm.NodeID]; !ok {
+						continue
+					}
+				}
+
 				if k == "images" || k == "gifs" {
 					for _, output := range v {
 						img_data, err := c.GetImage(output)

@@ -14,9 +14,11 @@ import (
 
 // parseCmd represents the info command
 var parseCmd = &cobra.Command{
-	Use:   "parse",
-	Short: "parse a workflow file and output the workflow json",
-	Long:  `parse a workflow file and output the workflow json`,
+	Use:   "parse [workflow file]",
+	Short: "Parse a workflow file and output the workflow json.",
+	Long: `Parse a workflow file and output the workflow json.
+This allows you to modify the parameters of a workflow and output the json
+to a file or the terminal. The first argument is the path to the workflow file.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		workflowPath := args[0]
 		params := args[1:] // All other args are considered parameters

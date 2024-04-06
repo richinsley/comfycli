@@ -10,7 +10,7 @@ import (
 
 // queueCmd represents the queue command
 var queueCmd = &cobra.Command{
-	Use:   "queue",
+	Use:   "queue [workflow file]",
 	Short: "Queue a workflow for processing",
 	Long: `
 Queue a workflow for processing. The first argument is the path to the workflow file.
@@ -48,7 +48,7 @@ comfycli workflow queue --inlineimages --nosavedata myworkflow.json -- KSampler:
 func InitQueue(workflowCmd *cobra.Command) {
 	queueCmd.Flags().BoolVarP(&CLIOptions.InlineImages, "inlineimages", "i", false, "Output images to terminal with Inline Image Protocol")
 	queueCmd.Flags().BoolVarP(&CLIOptions.NoSaveData, "nosavedata", "n", false, "Do not save data to disk")
-	queueCmd.Flags().StringVarP(&CLIOptions.OutputNodes, "outputnodes", "o", "", "Specify which output nodes to save data from (default is all nodes)")
+	queueCmd.Flags().StringVarP(&CLIOptions.OutputNodes, "outputnodes", "o", "", "Specify which output nodes save data. Comma separated nodes. Default is all nodes")
 
 	workflowCmd.AddCommand(queueCmd)
 }
