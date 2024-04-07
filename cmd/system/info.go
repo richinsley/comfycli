@@ -26,18 +26,18 @@ var infoCmd = &cobra.Command{
 		if !c.IsInitialized() {
 			err := c.Init()
 			if err != nil {
-				slog.Error("Error initializing client:", err)
+				slog.Error("Error initializing client:", "error", err)
 				os.Exit(1)
 			}
 		}
 
 		s, err := c.GetSystemStats()
 		if err != nil {
-			slog.Error("Error initializing client:", err)
+			slog.Error("Error initializing client:", "error", err)
 			os.Exit(1)
 		}
 
-		if CLIOptions.Json == true {
+		if CLIOptions.Json {
 			j, err := pkg.ToJson(s, CLIOptions.PrettyJson)
 			if err != nil {
 				slog.Error("Error fomating system info to json:", err)

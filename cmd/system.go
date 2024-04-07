@@ -39,4 +39,5 @@ func init() {
 	system.InitCanrun(systemCmd)
 	system.InitWait(systemCmd)
 	system.InitNodes(systemCmd)
+	system.InitTop(systemCmd)
 }
