@@ -17,7 +17,11 @@
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
-# Go workspace file
-go.work
 comfyui.log
 comfyui.prev*.log
+.DS_Store
+*/.DS_Store
+comfyui
+
+# Go workspace file
+go.work
