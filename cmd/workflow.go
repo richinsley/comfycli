@@ -14,15 +14,17 @@ import (
 // workflowCmd represents the workflow command
 var workflowCmd = &cobra.Command{
 	Use:   "workflow",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Perform workflow operations with a ComfyUI instance",
+	Long:  `Perform workflow operations with a ComfyUI instance`,
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Println("workflow called")
+		if len(args) == 0 {
+			if err := cmd.Help(); err != nil {
+				log.Fatalf("Error: %v", err)
+			}
+			return
+		}
+		// You can keep this or adjust as needed
+		log.Println("workflow called with args: ", args)
 	},
 }
 

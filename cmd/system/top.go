@@ -26,15 +26,6 @@ var topCmd = &cobra.Command{
 		// create a client
 		c := client.NewComfyClient(CLIOptions.Host, CLIOptions.Port, nil)
 
-		// the client needs to be in an initialized state before usage
-		if !c.IsInitialized() {
-			err := c.Init()
-			if err != nil {
-				slog.Error("Error initializing client:", "error", err)
-				os.Exit(1)
-			}
-		}
-
 		// continuously update the top information at the specified interval
 		for {
 			// clear the terminal screen

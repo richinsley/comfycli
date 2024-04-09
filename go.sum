@@ -84,8 +84,8 @@ github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINE
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 h1:Jamvg5psRIccs7FGNTlIRMkT8wgtp5eCXdBlqhYGL6U=
 github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
-github.com/richinsley/comfy2go v0.4.0 h1:9xAnDL3lEBLlLZCufetm8uC1q3Plp43ofd4xXPnPKV0=
-github.com/richinsley/comfy2go v0.4.0/go.mod h1:5DXQ505MgA90UFL5hLgsYVRXNGbBN3VziiXffVn4uvo=
+github.com/richinsley/comfy2go v0.6.0 h1:5lsUvJkj5xSGCqeVTIMITD6sKb3L3PMQob35Zy/BsqA=
+github.com/richinsley/comfy2go v0.6.0/go.mod h1:2+e332s67TGc96sW8E3Nk/ejqfehiI1zNF10KBY8dy4=
 github.com/richinsley/kinda v0.0.0-20240405143253-4e7432a3bf08 h1:ujbJ/SMhRqHyt1UxUcn+KYtiG2ks0uaic8vOO8q1zr0=
 github.com/richinsley/kinda v0.0.0-20240405143253-4e7432a3bf08/go.mod h1:1IbxGqzRymtPyaQC8stjYXy0cUjIDp0z/bULBIAi/LY=
 github.com/rivo/uniseg v0.2.0 h1:S1pD9weZBuJdFmowNwbpi7BJ8TNftyUImj/0WQi72jY=
