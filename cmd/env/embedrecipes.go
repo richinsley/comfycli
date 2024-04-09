@@ -135,6 +135,8 @@ type EnvRecipe struct {
 	CustomNodes []CustomNode `json:"custom_nodes,omitempty"`
 	// models to install (optional)
 	Models []Models `json:"models,omitempty"`
+	// modes
+	ParamSets map[string][]string `json:"paramsets,omitempty"`
 }
 
 //go:embed recipes/darwin/* recipes/windows/* recipes/linux/* recipes/all/*

@@ -42,6 +42,13 @@ var runcomfyCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		// if a parameters 'paramset' is specified, see if it exists in the environment and prepend to the arguments
+		paramset, _ := cmd.Flags().GetString("paramset")
+		if m, ok := newenv.ParamSets[paramset]; ok {
+			// prepend the mode args to the args list
+			args = append(m, args...)
+		}
+
 		// run the little bugger
 		newenv.Environment.BoundRunPythonScriptFromFile(filepath.Join(newenv.ComfyUIPath, "main.py"), args...)
 	},
@@ -51,4 +58,5 @@ func InitRunComfy(envCmd *cobra.Command) {
 	envCmd.AddCommand(runcomfyCmd)
 
 	runcomfyCmd.PersistentFlags().String("env", "default", "Name of the environment to run ComfyUI")
+	runcomfyCmd.PersistentFlags().String("paramset", "default", "Named stored parameter sets to pass as arguments to ComfyUI")
 }

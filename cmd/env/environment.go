@@ -28,6 +28,8 @@ type ComfyEnvironment struct {
 	ComfyUIPath string `json:"ComfyUIPath"`
 	// The environment
 	Environment *kinda.Environment `json:"-"`
+	// paramsets
+	ParamSets map[string][]string `json:"paramsets,omitempty"`
 }
 
 func GetComfyEnvironments() ([]string, error) {
@@ -229,7 +231,9 @@ func NewComfyEnvironmentFromRecipe(name string, recipe *EnvRecipe, recipePath st
 		Channel:       "",
 		Environment:   env,
 		ComfyUIPath:   comfyFolder,
+		ParamSets:     recipe.ParamSets,
 	}
+
 	if recipe.Channel != nil {
 		retv.Channel = *recipe.Channel
 	}
@@ -247,4 +251,21 @@ func NewComfyEnvironmentFromRecipe(name string, recipe *EnvRecipe, recipePath st
 	}
 
 	return retv, nil
+}
+
+func (c *ComfyEnvironment) DeleteEnvironment() error {
+	// delete the environment
+	err := os.RemoveAll(c.Environment.EnvPath)
+	if err != nil {
+		return err
+	}
+
+	// delete the environment descriptor
+	envfile := path.Join(CLIOptions.HomePath, "environments", "envs", c.Name, "kinda_env.json")
+	err = os.Remove(envfile)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

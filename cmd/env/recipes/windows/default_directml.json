@@ -1,16 +1,17 @@
 {
   "name": "default",
-  "description": "Default macos environment for ComfyUI",
+  "description": "Default windows environment for ComfyUI - NVidia, AMD, CPU",
   "version": "1.0",
   "recipe_format": "1.0",
   "python": "3.10",
   "channel": "conda-forge",
+  "default_mode": ["--directml"],
   "pip_packages": [
     {
       "extra_index_url": "https://download.pytorch.org/whl/cu121",
       "packages": [
         {
-          "name": "torch"
+          "name": "torch-directml"
         },
         {
           "name": "torchvision"
@@ -28,5 +29,8 @@
       "git_url": "https://github.com/ltdrdata/ComfyUI-Manager.git",
       "branch": "main"
     }
-  ]
+  ],
+  "modes": {
+    "default": ["--directml"]
+  }
 }

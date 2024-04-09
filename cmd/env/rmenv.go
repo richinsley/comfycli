@@ -50,10 +50,10 @@ var rmenvCmd = &cobra.Command{
 		}
 
 		// remove the environment
-		fmt.Println(newenv.Environment.EnvPath)
+		fmt.Printf("Removing environement %s: %s\n", env, newenv.Environment.EnvPath)
 
 		// remove the entire newenv.Environment.EnvPath directory
-		err = os.RemoveAll(newenv.Environment.EnvPath)
+		err = newenv.DeleteEnvironment()
 		if err != nil {
 			slog.Error("error removing environment", "error", err)
 			os.Exit(1)

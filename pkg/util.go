@@ -444,3 +444,23 @@ func UnionStringSlices(s1 []string, s2 []string) []string {
 	}
 	return retv
 }
+
+// OneOf - given a list of options, prompt the user to select one
+func OneOf(values []string, default_index int) string {
+	if len(values) == 0 {
+		return ""
+	}
+	if default_index < 0 || default_index >= len(values) {
+		default_index = 0
+	}
+	for i, v := range values {
+		fmt.Printf("%d: %s\n", i, v)
+	}
+	fmt.Printf("Select one [%d]: ", default_index)
+	var selection int
+	_, err := fmt.Scanf("%d", &selection)
+	if err != nil {
+		selection = default_index
+	}
+	return values[selection]
+}

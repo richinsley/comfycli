@@ -188,6 +188,20 @@ func MergeRecipes(r1 *EnvRecipe, r2 *EnvRecipe) (*EnvRecipe, error) {
 		Version:       "1.0", // this will be a new recipe, so always 1.0
 		PythonVersion: CurrentMinimumPython,
 		Inherits:      make([]string, 0),
+		ParamSets:     make(map[string][]string),
+	}
+
+	if r1.ParamSets != nil {
+		retv.ParamSets = r1.ParamSets
+	}
+	if r2.ParamSets != nil {
+		for k, v := range r2.ParamSets {
+			if _, ok := retv.ParamSets[k]; ok {
+				retv.ParamSets[k] = append(retv.ParamSets[k], v...)
+			} else {
+				retv.ParamSets[k] = v
+			}
+		}
 	}
 
 	// parse the python versions - take the highest version

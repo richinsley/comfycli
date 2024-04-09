@@ -30,7 +30,10 @@ var createCmd = &cobra.Command{
 	comfycli env create -name myenv
 
 	# create a new environment using the default recipe, force it to be python 3.10 and name it myenv
-	comfycli env create -recipe default -python 3.10 -name myenv`,
+	comfycli env create -recipe default -python 3.10 -name myenv
+	
+	# combine multiple recipes into a new environment
+	comfycli env create -recipe default,SD15,SDXL -name all_sd`,
 	Run: func(cmd *cobra.Command, args []string) {
 		recipe, _ := cmd.Flags().GetString("recipe")
 		python, _ := cmd.Flags().GetString("python")
@@ -38,13 +41,6 @@ var createCmd = &cobra.Command{
 		file, _ := cmd.Flags().GetString("file")
 		var r *EnvRecipe = nil
 		var err error
-
-		// get list of all available recipes
-		// recipes, err := GetRecipeList(CLIOptions.RecipesPath)
-		// if err != nil {
-		// 	slog.Error("error getting recipe list", "error", err)
-		// 	return
-		// }
 
 		if file != "" {
 			// check if the file exists

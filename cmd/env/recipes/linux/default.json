@@ -1,6 +1,6 @@
 {
   "name": "default",
-  "description": "Default macos environment for ComfyUI",
+  "description": "Default linux environment for ComfyUI - NVidia, CPU",
   "version": "1.0",
   "recipe_format": "1.0",
   "python": "3.10",
@@ -13,5 +13,8 @@
       "git_url": "https://github.com/ltdrdata/ComfyUI-Manager.git",
       "branch": "main"
     }
-  ]
+  ],
+  "paramsets": {
+    "default": []
+  }
 }
