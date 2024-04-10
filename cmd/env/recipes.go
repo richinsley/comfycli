@@ -427,6 +427,50 @@ func recipeFromPaths(paths []string) (*EnvRecipe, error) {
 	return newrecipe, nil
 }
 
+// HasDefaultRecipe returns true if the default recipe file exists
+func HasDefaultRecipe() bool {
+	if CLIOptions.RecipesPath == "" {
+		return false
+	}
+	_, err := RecipePathFromName("default")
+	if err != nil {
+		return false
+	}
+	return true
+}
+
+// GetAllDefaultRecipes returns a list of all default recipes (recipes that start with "default_")
+// the key is the recipe name and the value is the recipe path
+func GetAllDefaultRecipes() (map[string]string, error) {
+	if CLIOptions.RecipesPath == "" {
+		return nil, fmt.Errorf("recipes path not set")
+	}
+
+	recipeFiles, err := util.ListFiles(CLIOptions.RecipesPath)
+	if err != nil {
+		return nil, err
+	}
+
+	recipes := make(map[string]string)
+	for _, f := range recipeFiles {
+		_, filename := path.Split(f)
+		var extension = filepath.Ext(filename)
+		if extension != ".json" {
+			continue
+		}
+		var name = filename[0 : len(filename)-len(extension)]
+		if strings.HasPrefix(name, "default_") {
+			if runtime.GOOS == "windows" {
+				// god I hate windows
+				s := strings.Split(name, "\\")
+				name = s[len(s)-1]
+			}
+			recipes[name] = f
+		}
+	}
+	return recipes, nil
+}
+
 func RecipeFromNames(names []string) (*EnvRecipe, error) {
 	// get list of all recipe paths (including inherited recipes)
 	// this will be a recursive operation

@@ -42,6 +42,10 @@ var createCmd = &cobra.Command{
 		var r *EnvRecipe = nil
 		var err error
 
+		// split the recipe string on commas
+		// this allows for multiple recipes to be specified
+		wanted_recipe_list := strings.Split(recipe, ",")
+
 		if file != "" {
 			// check if the file exists
 			if _, err := os.Stat(file); os.IsNotExist(err) {
@@ -55,9 +59,46 @@ var createCmd = &cobra.Command{
 				os.Exit(1)
 			}
 		} else {
-			// split the recipe string on commas
-			// this allows for multiple recipes to be specified
-			wanted_recipe_list := strings.Split(recipe, ",")
+			// see if we have a 'default' recipe
+			if !HasDefaultRecipe() {
+				// we are almost certainly going to need a default system recipe
+				defaults, err := GetAllDefaultRecipes()
+				if err != nil {
+					slog.Error("error loading default recipes", "error", err)
+					os.Exit(1)
+				}
+
+				// check if a default recipe is in the wanted list
+				default_candidate := ""
+				default_candidate_path := ""
+				for _, wanted := range wanted_recipe_list {
+					for k, _ := range defaults {
+						if wanted == k {
+							// we have a default recipe in the wanted list
+							// we can use it as the default recipe
+							default_candidate = k
+							default_candidate_path = path.Join(CLIOptions.RecipesPath, default_candidate+".json")
+							break
+						}
+					}
+				}
+
+				if default_candidate != "" {
+					// make default_candidate the default
+					// we need to deserialize the recipe, change the name to 'default' and write it to 'default.json'
+					r, err = RecipeFromPath(default_candidate_path)
+					if err != nil {
+						slog.Error("error deserializing recipe", "error", err)
+						os.Exit(1)
+					}
+					r.Name = "default"
+					err = r.WriteRecipe(path.Join(CLIOptions.RecipesPath, "default.json"), true)
+					if err != nil {
+						slog.Error("error writing default recipe", "error", err)
+						os.Exit(1)
+					}
+				}
+			}
 
 			r, err = RecipeFromNames(wanted_recipe_list)
 			if err != nil {
@@ -128,4 +169,5 @@ func InitCreate(envCmd *cobra.Command) {
 	createCmd.Flags().String("file", "", "Path to an external recipe file to use for environment creation")
 	createCmd.Flags().BoolVarP(&outputverbose, "verbose", "v", false, "Verbose output")
 	createCmd.Flags().BoolVarP(&outputquiet, "quiet", "q", false, "Silent output")
+	createCmd.Flags().BoolVarP(&CLIOptions.NoSharedModels, "noshared", "n", false, "Do not use shared models path")
 }

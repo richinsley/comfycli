@@ -9,20 +9,21 @@ import (
 )
 
 type ComfyOptions struct {
-	Host         string
-	Port         int
-	Json         bool
-	PrettyJson   bool
-	API          string
-	APIValues    string
-	GraphOutPath string
-	InlineImages bool
-	NoSaveData   bool
-	DataToStdout bool
-	HomePath     string
-	RecipesPath  string
-	Yes          bool // Automatically answer yes on prompted questions
-	OutputNodes  string
+	Host           string
+	Port           int
+	Json           bool
+	PrettyJson     bool
+	API            string
+	APIValues      string
+	GraphOutPath   string
+	InlineImages   bool
+	NoSaveData     bool
+	DataToStdout   bool
+	HomePath       string
+	RecipesPath    string
+	Yes            bool // Automatically answer yes on prompted questions
+	OutputNodes    string
+	NoSharedModels bool
 	// API sub command options
 	APIValuesOnly bool // only output the values of the API nodes
 	Stdin         *bufio.Reader

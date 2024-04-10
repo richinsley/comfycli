@@ -30,6 +30,8 @@ type ComfyEnvironment struct {
 	Environment *kinda.Environment `json:"-"`
 	// paramsets
 	ParamSets map[string][]string `json:"paramsets,omitempty"`
+	// Using shared models
+	SharedModels bool `json:"SharedModels,omitempty"`
 }
 
 func GetComfyEnvironments() ([]string, error) {
@@ -193,8 +195,10 @@ func NewComfyEnvironmentFromRecipe(name string, recipe *EnvRecipe, recipePath st
 	*/
 
 	// install models if specified
+	useshared := !CLIOptions.NoSharedModels
 	if recipe.Models != nil {
 		models_path := path.Join(comfyFolder, "models")
+		shared_models_path := path.Join(CLIOptions.HomePath, "models")
 		for _, m := range recipe.Models {
 			var savepath string
 			if m.SavePath == "default" {
@@ -202,7 +206,13 @@ func NewComfyEnvironmentFromRecipe(name string, recipe *EnvRecipe, recipePath st
 			} else {
 				savepath = m.SavePath
 			}
-			savepath = path.Join(models_path, savepath)
+
+			if useshared {
+				savepath = path.Join(shared_models_path, savepath)
+			} else {
+				savepath = path.Join(models_path, savepath)
+			}
+
 			// ensure the save folder exists
 			err = os.MkdirAll(savepath, 0755)
 			if err != nil {
@@ -210,16 +220,57 @@ func NewComfyEnvironmentFromRecipe(name string, recipe *EnvRecipe, recipePath st
 				return nil, err
 			}
 
-			if feedback == kinda.ShowVerbose || feedback == kinda.ShowProgressBarVerbose {
-				fmt.Printf("Downloading model %s to %s\n", m.Name, savepath)
+			// check if the model already exists
+			if _, err := os.Stat(path.Join(savepath, m.Filename)); err == nil {
+				if feedback == kinda.ShowVerbose || feedback == kinda.ShowProgressBarVerbose {
+					fmt.Printf("Model %s already exists at %s\n", m.Name, savepath)
+				}
+			} else {
+				if feedback == kinda.ShowVerbose || feedback == kinda.ShowProgressBarVerbose {
+					fmt.Printf("Downloading model %s to %s\n", m.Name, savepath)
+				}
+
+				savepath = path.Join(savepath, m.Filename)
+				err = util.DownloadFile(m.URL, savepath, 5, feedback)
+				if err != nil {
+					fmt.Printf("Failed to download model %s: %v\n", m.Name, err)
+					continue
+				}
 			}
 
-			savepath = path.Join(savepath, m.Filename)
-			err = util.DownloadFile(m.URL, savepath, 5, feedback)
-			if err != nil {
-				fmt.Printf("Failed to download model %s: %v\n", m.Name, err)
-				continue
+			// if we downloaded a model, and we are using shared models, create a symlink from the shared models folder to the comfyui models folder
+			if useshared {
+				sharedpath := path.Join(shared_models_path, m.Type, m.Filename)
+				var savepath string
+				if m.SavePath == "default" {
+					savepath = m.Type
+				} else {
+					savepath = m.SavePath
+				}
+				truepath := path.Join(models_path, savepath, m.Filename)
+				// ensure the path that we will put the symlink in exists
+				err = os.MkdirAll(path.Dir(sharedpath), 0755)
+				if err != nil {
+					fmt.Printf("Error creating symlink path: %v\n", err)
+					return nil, err
+				}
+				// create the symlink
+				err = os.Symlink(sharedpath, truepath)
+				if err != nil {
+					fmt.Printf("Error creating symlink: %v\n", err)
+					return nil, err
+				}
 			}
+		}
+	}
+
+	if recipePath == "" {
+		// write the recipe to the file to the same folder as the environment
+		recipePath = path.Join(env.EnvPath, name+".json")
+		err = recipe.WriteRecipe(recipePath, true)
+		if err != nil {
+			fmt.Printf("Error writing recipe: %v\n", err)
+			return nil, err
 		}
 	}
 
@@ -232,6 +283,7 @@ func NewComfyEnvironmentFromRecipe(name string, recipe *EnvRecipe, recipePath st
 		Environment:   env,
 		ComfyUIPath:   comfyFolder,
 		ParamSets:     recipe.ParamSets,
+		SharedModels:  useshared,
 	}
 
 	if recipe.Channel != nil {

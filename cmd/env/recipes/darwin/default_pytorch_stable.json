@@ -1,5 +1,5 @@
 {
-    "name": "default",
+    "name": "default_pytorch_stable",
     "description": "Default macos environment for ComfyUI",
     "version": "1.0",
     "recipe_format": "1.0",
