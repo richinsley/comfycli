@@ -6,9 +6,9 @@ $VERSION = if ($null -eq $Env:VERSION) { "latest" } else { $Env:VERSION }
 
 # if VERSION is "latest" then RELEASE_URL will be the latest release
 if ($VERSION -eq "latest") {
-    $RELEASE_URL="https://github.com/richinsley/installscripts/releases/latest/download/comfycli-win-64.exe"
+    $RELEASE_URL="https://github.com/richinsley/comfycli/releases/latest/download/comfycli-win-64.exe"
 } else {
-    $RELEASE_URL="https://github.com/richinsley/installscripts/releases/$VERSION/download/comfycli-win-64"
+    $RELEASE_URL="https://github.com/richinsley/comfycli/releases/$VERSION/download/comfycli-win-64"
 }
 
 Write-Output "Downloading comfycli from $RELEASE_URL"
