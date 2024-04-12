@@ -59,6 +59,9 @@ var rmenvCmd = &cobra.Command{
 			os.Exit(1)
 		}
 	},
+	PreRun: func(cmd *cobra.Command, args []string) {
+		CheckForDefaultRecipe()
+	},
 }
 
 func InitRMEnv(envCmd *cobra.Command) {

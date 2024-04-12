@@ -31,6 +31,9 @@ var lsenvCmd = &cobra.Command{
 			fmt.Println(v)
 		}
 	},
+	PreRun: func(cmd *cobra.Command, args []string) {
+		CheckForDefaultRecipe()
+	},
 }
 
 func InitLSEnv(envCmd *cobra.Command) {

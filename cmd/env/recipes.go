@@ -76,6 +76,9 @@ var recipesCmd = &cobra.Command{
 			fmt.Println(r)
 		}
 	},
+	PreRun: func(cmd *cobra.Command, args []string) {
+		CheckForDefaultRecipe()
+	},
 }
 
 func RecipeFromPath(path string) (*EnvRecipe, error) {
@@ -485,4 +488,8 @@ func RecipeFromNames(names []string) (*EnvRecipe, error) {
 		paths = append(paths, p)
 	}
 	return recipeFromPaths(paths)
+}
+
+func CheckForDefaultRecipe() {
+	fmt.Println("here")
 }

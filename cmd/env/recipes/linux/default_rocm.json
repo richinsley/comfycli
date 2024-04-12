@@ -1,0 +1,35 @@
+{
+    "name": "default_rocm",
+    "description": "Default linux environment for ComfyUI - AMD",
+    "version": "1.0",
+    "recipe_format": "1.0",
+    "python": "3.10",
+    "channel": "conda-forge",
+    "pip_packages": [
+      {
+        "index_url": "https://download.pytorch.org/whl/rocm5.7",
+        "packages": [
+          {
+            "name": "torch"
+          },
+          {
+            "name": "torchvision"
+          },
+          {
+            "name": "torchaudio"
+          }
+        ]
+      }
+    ],
+    "models": [],
+    "custom_nodes": [
+      {
+        "name": "Manager",
+        "git_url": "https://github.com/ltdrdata/ComfyUI-Manager.git",
+        "branch": "main"
+      }
+    ],
+    "paramsets": {
+      "default": []
+    }
+  }

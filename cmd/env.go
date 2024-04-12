@@ -25,6 +25,9 @@ var envCmd = &cobra.Command{
 		// You can keep this or adjust as needed
 		log.Println("env called with args: ", args)
 	},
+	PreRun: func(cmd *cobra.Command, args []string) {
+		env.CheckForDefaultRecipe()
+	},
 }
 
 func init() {

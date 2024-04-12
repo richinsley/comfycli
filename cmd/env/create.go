@@ -158,6 +158,9 @@ var createCmd = &cobra.Command{
 			fmt.Printf("Created environment: %s\n", env.Name)
 		}
 	},
+	PreRun: func(cmd *cobra.Command, args []string) {
+		CheckForDefaultRecipe()
+	},
 }
 
 func InitCreate(envCmd *cobra.Command) {

@@ -137,7 +137,7 @@ func checkComfycliHome(path string) error {
 	// create the recipes folder
 	recipesFolder := filepath.Join(path, "environments", "recipes")
 	if _, err := os.Stat(recipesFolder); os.IsNotExist(err) {
-		fmt.Printf("Creating recipes folder: %s\n", recipesFolder)
+		fmt.Printf("Creating recipes folder: %s\n\n", recipesFolder)
 		err := os.MkdirAll(recipesFolder, os.ModePerm)
 		if err != nil {
 			fmt.Printf("Failed to create recipes folder: %s\n", err)
@@ -206,7 +206,7 @@ func getComfycliHome() (string, error) {
 
 	// last but not least, check the user's home directory
 	userhomedir, _ := os.UserHomeDir()
-	userhomedir = filepath.Join(userhomedir, "comfycli")
+	userhomedir = filepath.Join(userhomedir, ".comfycli")
 	configFilePath, err = setupComfycliHome(userhomedir, true)
 	if err == nil && configFilePath != "" {
 		// set up the home folder
@@ -243,7 +243,7 @@ func init() {
 	viper.AutomaticEnv()           // Read in environment variables that match.
 
 	// Determine the default work folder and check for an override from environment variables.
-	defaultWorkFolder := filepath.Join(os.Getenv("HOME"), "comfycli")
+	defaultWorkFolder := filepath.Join(os.Getenv("HOME"), ".comfycli")
 	workFolder := viper.GetString("HOME") // Looking for COMFYCLI_HOME
 	if workFolder == "" {
 		workFolder = defaultWorkFolder
