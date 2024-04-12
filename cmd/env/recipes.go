@@ -491,5 +491,59 @@ func RecipeFromNames(names []string) (*EnvRecipe, error) {
 }
 
 func CheckForDefaultRecipe() {
-	fmt.Println("here")
+	// check the recipes folder for the default recipe, if it doesn't exist,
+	// get all the recipes that have the prefix "default_" and ask the user which one to use
+	if !HasDefaultRecipe() {
+		recipes, err := GetAllDefaultRecipes()
+		if err != nil {
+			fmt.Println("error getting default recipes")
+			return
+		}
+
+		// create a list of strings from the map keys
+		defaults := make([]string, 0)
+		for k := range recipes {
+			// load the recipe and get the description
+			r, err := RecipeFromPath(recipes[k])
+			if err != nil {
+				fmt.Printf("error loading default recipe %s: %s\n", k, err)
+				continue
+			}
+			// add the description to the list, prepend with the index
+			defaults = append(defaults, fmt.Sprintf("%s - %s", k, r.Description))
+		}
+
+		fmt.Println("Default recipe for the system is not set.\nPlease select a default recipe from the list below:")
+		newdefault := ""
+		// continue to ask the user until they select a valid default recipe
+		for newdefault == "" {
+			newdefault, err := util.OneOf(defaults, -1)
+			if err != nil {
+				fmt.Println(err.Error())
+				continue
+			}
+			// get the recipe name from the selected string
+			newdefault = strings.Split(newdefault, " ")[0]
+			// get the recipe path
+			newdefaultpath := recipes[newdefault]
+			// we need to deserialize the recipe, change the name to 'default' and write it to 'default.json'
+			r, err := RecipeFromPath(newdefaultpath)
+			if err != nil {
+				fmt.Printf("error deserializing recipe %s: %s\n", newdefault, err)
+				newdefault = ""
+				continue
+			}
+			r.Name = "default"
+			err = r.WriteRecipe(path.Join(CLIOptions.RecipesPath, "default.json"), true)
+			if err != nil {
+				fmt.Printf("error writing default recipe %s: %s\n", newdefault, err)
+				newdefault = ""
+				continue
+			}
+			fmt.Println("setting default recipe to", newdefault)
+			break
+		}
+
+		fmt.Println("setting default recipe to", newdefault)
+	}
 }

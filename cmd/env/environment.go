@@ -35,8 +35,14 @@ type ComfyEnvironment struct {
 }
 
 func GetComfyEnvironments() ([]string, error) {
-	// create the environment
+	// create the environment path
 	envpath := path.Join(CLIOptions.HomePath, "environments")
+	environmentspath := path.Join(envpath, "envs")
+	// ensure the environments folder exists, create it if it does not
+	err := os.MkdirAll(environmentspath, 0755)
+	if err != nil {
+		return nil, err
+	}
 	entries, err := os.ReadDir(path.Join(envpath, "envs"))
 	if err != nil {
 		return nil, err

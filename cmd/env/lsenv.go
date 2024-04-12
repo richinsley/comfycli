@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
-	"path"
 
 	"github.com/spf13/cobra"
 )
@@ -19,8 +18,6 @@ var lsenvCmd = &cobra.Command{
 	Long:  `List available environments`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// try to load the environment
-		envpath := path.Join(CLIOptions.HomePath, "environments")
-		fmt.Println(envpath)
 		envlist, err := GetComfyEnvironments()
 		if err != nil {
 			slog.Error("error getting environment list", "error", err)

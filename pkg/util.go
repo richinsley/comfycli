@@ -459,24 +459,38 @@ func UnionStringSlices(s1 []string, s2 []string) []string {
 	return retv
 }
 
-// OneOf - given a list of options, prompt the user to select one
-func OneOf(values []string, default_index int) string {
+// OneOf - given a list of options, prompt the user to select one, if default is -1 then
+// there is no default selection
+func OneOf(values []string, default_index int) (string, error) {
 	if len(values) == 0 {
-		return ""
+		return "", fmt.Errorf("no values to select from")
 	}
-	if default_index < 0 || default_index >= len(values) {
-		default_index = 0
+	if default_index >= len(values) {
+		default_index = len(values) - 1
 	}
 	for i, v := range values {
 		fmt.Printf("%d: %s\n", i, v)
 	}
-	fmt.Printf("Select one [%d]: ", default_index)
+	if default_index == -1 {
+		fmt.Printf("Select one: ")
+	} else {
+		fmt.Printf("Select one [%d]: ", default_index)
+	}
+
 	var selection int
 	_, err := fmt.Scanf("%d", &selection)
 	if err != nil {
+		if default_index == -1 {
+			return "", fmt.Errorf("invalid selection")
+		}
 		selection = default_index
 	}
-	return values[selection]
+
+	// check if the selection is within the range of values
+	if selection < 0 || selection >= len(values) {
+		return "", fmt.Errorf("invalid selection")
+	}
+	return values[selection], nil
 }
 
 func CopyFile(src, dst string) (int64, error) {
