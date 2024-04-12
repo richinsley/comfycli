@@ -459,6 +459,32 @@ func UnionStringSlices(s1 []string, s2 []string) []string {
 	return retv
 }
 
+// YesNo - prompt the user for a yes or no response
+func YesNo(prompt string, default_yes bool) (bool, error) {
+	var default_str string
+	if default_yes {
+		default_str = "Y"
+	} else {
+		default_str = "N"
+	}
+	fmt.Printf("%s [%s]: ", prompt, default_str)
+	var response string
+	fmt.Scanf("%s", &response)
+	// to upper
+	response = strings.ToUpper(response)
+	if response == "" {
+		response = default_str
+	}
+
+	if response == "Y" {
+		return true, nil
+	} else if response == "N" {
+		return false, nil
+	} else {
+		return false, fmt.Errorf("invalid response")
+	}
+}
+
 // OneOf - given a list of options, prompt the user to select one, if default is -1 then
 // there is no default selection
 func OneOf(values []string, default_index int) (string, error) {

@@ -482,7 +482,6 @@ func RecipeFromNames(names []string) (*EnvRecipe, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(recipesPaths)
 	paths := make([]string, 0)
 	for _, p := range recipesPaths {
 		paths = append(paths, p)

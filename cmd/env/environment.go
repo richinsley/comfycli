@@ -318,12 +318,5 @@ func (c *ComfyEnvironment) DeleteEnvironment() error {
 		return err
 	}
 
-	// delete the environment descriptor
-	envfile := path.Join(CLIOptions.HomePath, "environments", "envs", c.Name, "kinda_env.json")
-	err = os.Remove(envfile)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }

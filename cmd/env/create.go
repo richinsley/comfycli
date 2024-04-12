@@ -10,6 +10,7 @@ import (
 	"path"
 	"strings"
 
+	util "github.com/richinsley/comfycli/pkg"
 	kinda "github.com/richinsley/kinda/pkg"
 	"github.com/spf13/cobra"
 )
@@ -35,6 +36,12 @@ var createCmd = &cobra.Command{
 	# combine multiple recipes into a new environment
 	comfycli env create -recipe default,SD15,SDXL -name all_sd`,
 	Run: func(cmd *cobra.Command, args []string) {
+		if len(args) > 0 {
+			slog.Error("invalid arguments", "args", args)
+			// print the help
+			cmd.Help()
+			os.Exit(1)
+		}
 		recipe, _ := cmd.Flags().GetString("recipe")
 		python, _ := cmd.Flags().GetString("python")
 		name, _ := cmd.Flags().GetString("name")
@@ -139,6 +146,24 @@ var createCmd = &cobra.Command{
 		// override the python version
 		if python != "" {
 			r.PythonVersion = python
+		}
+
+		// present the recipe to the user, the target python version, the name of the environment, and the target path
+		// ask the user if they want to proceed
+		if !CLIOptions.Yes {
+			fmt.Println("Creating ComfyUI environment with the following settings:")
+			fmt.Printf("Recipe: %s\n", r.Name)
+			fmt.Printf("Python: %s\n", r.PythonVersion)
+			fmt.Printf("Name: %s\n", name)
+			fmt.Printf("Path: %s\n", path.Join(CLIOptions.HomePath, "environments", "envs", name))
+			proceed, err := util.YesNo("Proceed with environment creation?", true)
+			if err != nil {
+				slog.Error("invalid response", "error", err)
+				os.Exit(1)
+			}
+			if !proceed {
+				os.Exit(0)
+			}
 		}
 
 		// create the environment

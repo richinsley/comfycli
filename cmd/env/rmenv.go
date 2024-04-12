@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"os"
 
+	util "github.com/richinsley/comfycli/pkg"
 	"github.com/spf13/cobra"
 )
 
@@ -48,6 +49,19 @@ var rmenvCmd = &cobra.Command{
 			slog.Error("error getting environment", "error", err)
 			os.Exit(1)
 		}
+
+		if !CLIOptions.Yes {
+			response, err := util.YesNo(fmt.Sprintf("Are you sure you want to remove environment %s: %s", env, newenv.Environment.EnvPath), true)
+			if err != nil {
+				slog.Error("error getting user response", "error", err)
+				os.Exit(1)
+			}
+			if !response {
+				os.Exit(0)
+			}
+		}
+
+		// ask the user if they are sure
 
 		// remove the environment
 		fmt.Printf("Removing environement %s: %s\n", env, newenv.Environment.EnvPath)
