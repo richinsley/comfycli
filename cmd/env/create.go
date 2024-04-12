@@ -170,7 +170,7 @@ func InitCreate(envCmd *cobra.Command) {
 	createCmd.Flags().String("python", "", "Override the recipe python version to use")
 	createCmd.Flags().String("name", "default", "Name of the environment to create")
 	createCmd.Flags().String("file", "", "Path to an external recipe file to use for environment creation")
-	createCmd.Flags().BoolVarP(&outputverbose, "verbose", "v", false, "Verbose output")
+	createCmd.Flags().BoolVarP(&outputverbose, "verbose", "", false, "Verbose output")
 	createCmd.Flags().BoolVarP(&outputquiet, "quiet", "q", false, "Silent output")
 	createCmd.Flags().BoolVarP(&CLIOptions.NoSharedModels, "noshared", "n", false, "Do not use shared models path")
 }
