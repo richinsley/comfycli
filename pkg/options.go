@@ -22,6 +22,7 @@ type ComfyOptions struct {
 	HomePath       string
 	RecipesPath    string
 	Yes            bool // Automatically answer yes on prompted questions
+	GetVersion     bool
 	OutputNodes    string
 	NoSharedModels bool
 	// API sub command options

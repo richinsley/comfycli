@@ -1,8 +1,10 @@
 package pkg
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/json"
+	"image"
 	"log/slog"
 	"net"
 	"net/http"
@@ -16,6 +18,7 @@ import (
 	"fmt"
 	"io"
 
+	sixel "github.com/mattn/go-sixel"
 	"github.com/richinsley/comfy2go/client"
 	"github.com/richinsley/comfy2go/graphapi"
 	kinda "github.com/richinsley/kinda/pkg"
@@ -104,13 +107,24 @@ func LoadData(path string) (*[]byte, error) {
 	return &data, nil
 }
 
-func OutputInlineToStd(data *[]byte) {
+func outputSixelImageToStd(data *[]byte) {
+	// create an io.reader from the data bytes
+	r := bytes.NewReader(*data)
+	img, _, _ := image.Decode(r)
+	sixel.NewEncoder(os.Stdout).Encode(img)
+}
+
+func outputInlineImageToStd(data *[]byte) {
 	// encode the image to base64
 	encoded := base64.StdEncoding.EncodeToString(*data)
 	// print the encoded string
 	os.Stdout.WriteString("\033]1337;File=inline=1:")
 	os.Stdout.WriteString(encoded)
 	os.Stdout.WriteString("\a\n")
+}
+
+func OutputInlineToStd(data *[]byte) {
+	outputInlineImageToStd(data)
 }
 
 func GetFullWorkflow(options *ComfyOptions, workflow string, cb *client.ComfyClientCallbacks) (*client.ComfyClient, *graphapi.Graph, *graphapi.SimpleAPI, *[]string, error) {

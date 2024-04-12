@@ -55,6 +55,31 @@ var rootCmd = &cobra.Command{
 	Short:            "A command-line interface for interacting with ComfyUI",
 	PreRun:           PreprocessOptions,
 	PersistentPreRun: PreprocessOptions,
+	Run: func(cmd *cobra.Command, args []string) {
+		if CLIOptions.GetVersion {
+			if CLIOptions.Json {
+				versionmap := map[string]string{
+					"version": ComfycliVersion.String(),
+				}
+				json, err := pkg.ToJson(versionmap, CLIOptions.PrettyJson)
+				if err != nil {
+					slog.Error("Failed to convert version to json:", "error", err)
+					os.Exit(1)
+				}
+				fmt.Println(json)
+				return
+			}
+			fmt.Println(ComfycliVersion.String())
+			return
+		}
+		if len(args) == 0 {
+			if err := cmd.Help(); err != nil {
+				slog.Error("Error:", "error", err)
+				os.Exit(1)
+			}
+			return
+		}
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -264,6 +289,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&CLIOptions.GraphOutPath, "graphout", "g", "", "Path to write workflow graph JSON")
 	rootCmd.PersistentFlags().BoolVarP(&CLIOptions.DataToStdout, "stdout", "s", false, "Write node output data to stdout")
 	rootCmd.PersistentFlags().BoolVarP(&CLIOptions.Yes, "yes", "y", false, "Automatically answer yes on prompted questions")
+	rootCmd.PersistentFlags().BoolVarP(&CLIOptions.GetVersion, "version", "v", false, "Print the version of comfycli")
 
 	// Set the Long field of rootCmd after CLIOptions.HomePath is populated
 	rootCmd.Long = getLongDescription()

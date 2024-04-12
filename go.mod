@@ -6,6 +6,7 @@ require (
 	github.com/deckarep/golang-set v1.8.0
 	github.com/go-git/go-git/v5 v5.12.0
 	github.com/google/uuid v1.4.0
+	github.com/mattn/go-sixel v0.0.5
 	github.com/richinsley/comfy2go v0.6.0
 	github.com/richinsley/kinda v0.0.0-20240405143253-4e7432a3bf08
 	github.com/schollz/progressbar/v3 v3.13.1
@@ -41,6 +42,7 @@ require (
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3 // indirect
 	github.com/skeema/knownhosts v1.2.2 // indirect
+	github.com/soniakeys/quant v1.0.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
