@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # references: https://github.com/mamba-org/micromamba-releases
 # references: https://raw.githubusercontent.com/mamba-org/micromamba-releases/main/install.sh
