@@ -484,6 +484,7 @@ func HasDefaultRecipe() bool {
 
 // GetAllDefaultRecipes returns a list of all default recipes (recipes that start with "default_")
 // the key is the recipe name and the value is the recipe path
+/*
 func GetAllDefaultRecipes() (map[string]string, error) {
 	if CLIOptions.RecipesPath == "" {
 		return nil, fmt.Errorf("recipes path not set")
@@ -508,6 +509,31 @@ func GetAllDefaultRecipes() (map[string]string, error) {
 				s := strings.Split(name, "\\")
 				name = s[len(s)-1]
 			}
+			recipes[name] = f
+		}
+	}
+	return recipes, nil
+}
+*/
+func GetAllDefaultRecipes() (map[string]string, error) {
+	if CLIOptions.RecipesPath == "" {
+		return nil, fmt.Errorf("recipes path not set")
+	}
+
+	recipeFiles, err := util.ListFiles(CLIOptions.RecipesPath)
+	if err != nil {
+		return nil, err
+	}
+
+	recipes := make(map[string]string)
+	for _, f := range recipeFiles {
+		filename := filepath.Base(f)
+		var extension = filepath.Ext(filename)
+		if extension != ".json" {
+			continue
+		}
+		var name = filename[0 : len(filename)-len(extension)]
+		if strings.HasPrefix(name, "default_") {
 			recipes[name] = f
 		}
 	}
