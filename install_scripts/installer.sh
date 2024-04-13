@@ -3,7 +3,7 @@
 # references: https://github.com/mamba-org/micromamba-releases
 # references: https://raw.githubusercontent.com/mamba-org/micromamba-releases/main/install.sh
 
-set -eu
+# set -eu
 
 # Detect the shell from which the script was called
 parent=$(ps -o comm $PPID |tail -1)
@@ -21,41 +21,28 @@ esac
 echo "Parent shell: $parent"
 
 find_writable_path_dir() {
-# Check if comfycli is already in the PATH
-    comfycli_path=$(command -v comfycli 2>/dev/null)
+    comfycli_path=$(command -v comfycli >/dev/null 2>&1 || echo "")
 
     if [ -n "$comfycli_path" ]; then
-        # comfycli is found in the PATH
         comfycli_dir=$(dirname "$comfycli_path")
 
         if [ -w "$comfycli_dir" ]; then
-            # The directory containing comfycli is writable
             echo "$comfycli_dir"
             return 0
         fi
     fi
 
-    # Get the PATH environment variable
     path=$PATH
-
-    # Split the PATH into an array using ':' as the delimiter
     IFS=':' read -ra dirs <<< "$path"
 
-    # Reverse the order of the directories
-    reversed_dirs=()
-    for ((i=${#dirs[@]}-1; i>=0; i--)); do
-        reversed_dirs+=("${dirs[i]}")
-    done
-
-    # Check and return the first writable directory
-    for dir in "${reversed_dirs[@]}"; do
+    for dir in "${dirs[@]}"; do
         if [ -w "$dir" ]; then
             echo "$dir"
             return 0
         fi
     done
 
-    # If no writable directories are found, return "~/.local/bin"
+    mkdir -p ~/.local/bin
     echo "~/.local/bin"
 }
 
@@ -64,7 +51,7 @@ writable_path_dir=$(find_writable_path_dir)
 
 # Parsing arguments
 if [ -t 0 ] ; then
-  printf "comfycli install binary folder? [$writable_path_dir] "
+  printf "Install comficli to: [$writable_path_dir] "
   read BIN_FOLDER
 
   # if BIN_FOLDER is empty, set it to the presented value
