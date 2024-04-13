@@ -33,7 +33,7 @@ find_writable_path_dir() {
     fi
 
     path=$PATH
-    IFS=':' read -ra dirs <<< "$path"
+    IFS=':' read -r dir1 dir2 dir3 rest <<< "$PATH"
 
     for dir in "${dirs[@]}"; do
         if [ -w "$dir" ]; then
