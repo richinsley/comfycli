@@ -10,7 +10,7 @@ Installation scripts are provided for quick and easy installation via the comman
 
 For Linux, macOS, or Git Bash on Windows install with:
 ```bash
-"${SHELL}" <(curl -L https://raw.githubusercontent.com/richinsley/comfycli/main/install_scripts/installer.sh)
+COMFYCLI_PARENT_PATH="$PATH" "${SHELL}" <(curl -L https://raw.githubusercontent.com/richinsley/comfycli/main/install_scripts/installer.sh)
 ```
 
 For Windows Powershell:

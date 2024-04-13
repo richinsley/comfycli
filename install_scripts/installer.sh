@@ -1,13 +1,14 @@
-#!/bin/bash
+#!/bin/sh
 
 # references: https://github.com/mamba-org/micromamba-releases
 # references: https://raw.githubusercontent.com/mamba-org/micromamba-releases/main/install.sh
 
 # set -eu
 
-# Set a default PATH known to include required utilities if PATH is not properly set
-if [ -z "$(command -v mkdir)" ]; then
-    export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
+if [ -n "${COMFYCLI_PARENT_PATH}" ]; then
+    PATH="$COMFYCLI_PARENT_PATH"
+else
+    COMFYCLI_PARENT_PATH="$PATH"
 fi
 
 # Detect the shell from which the script was called
@@ -23,8 +24,6 @@ case "$parent" in
     ;;
 esac
 
-echo "Parent shell: $parent"
-
 find_writable_path_dir() {
     comfycli_path=$(command -v comfycli >/dev/null 2>&1 || echo "")
 
@@ -37,30 +36,44 @@ find_writable_path_dir() {
         fi
     fi
 
-    path=$PATH
-    IFS=':' read -r dir1 dir2 dir3 rest <<< "$PATH"
+    common_install_paths=(
+        "$HOME/.local/bin"
+        "$HOME/bin"
+        "$HOME/.bin"
+        "/usr/local/bin"
+        "/opt/local/bin"
+        "/usr/bin"
+        "/opt/homebrew/bin"
+    )
 
-    for dir in "${dirs[@]}"; do
-        if [ -w "$dir" ]; then
+    IFS=':' path_dirs=("${(@s/:/)COMFYCLI_PARENT_PATH}")
+
+    for dir in "${common_install_paths[@]}"; do
+        if [[ "${path_dirs[@]}" =~ "$dir" ]] && [ -w "$dir" ]; then
             echo "$dir"
             return 0
         fi
     done
 
-    mkdir -p ~/.local/bin
-    echo "~/.local/bin"
+    echo "${HOME}/.local/bin"
 }
+
 
 # Call the function and store the result in a variable
 writable_path_dir=$(find_writable_path_dir)
 
-# Parsing arguments
-if [ -t 0 ] ; then
-  printf "Install comficli to: [$writable_path_dir] "
-  read BIN_FOLDER
+if [ $# -eq 1 ]; then
+  BIN_FOLDER="$1"
+else
+  if [ -t 0 ] ; then
+    printf "Install comficli to: [$writable_path_dir] "
+    read BIN_FOLDER
 
-  # if BIN_FOLDER is empty, set it to the presented value
-  BIN_FOLDER="${BIN_FOLDER:-$writable_path_dir}"
+    # if BIN_FOLDER is empty, set it to the presented value
+    BIN_FOLDER="${BIN_FOLDER:-$writable_path_dir}"
+  else
+    BIN_FOLDER="$writable_path_dir"
+  fi
 fi
 
 # Computing artifact location
@@ -91,28 +104,57 @@ case "$PLATFORM-$ARCH" in
 esac
 
 if [ "${VERSION:-}" = "" ]; then
-  # https://github.com/richinsley/comfycli/releases/latest/download/comfycli-osx-arm64
   RELEASE_URL="https://github.com/richinsley/comfycli/releases/latest/download/comfycli-${PLATFORM}-${ARCH}"
 else
-  # https://github.com/richinsley/comfycli/releases/download/v0.0.1/comfycli-osx-arm64
   RELEASE_URL="https://github.com/richinsley/comfycli/releases/download/comfycli-${VERSION}/comfycli-${PLATFORM}-${ARCH}"
 fi
 
-echo $BIN_FOLDER
-echo $PLATFORM-$ARCH
-echo $RELEASE_URL
-
 # Downloading artifact
-mkdir -p "${BIN_FOLDER}"
+echo "Downloading comfycli from: ${RELEASE_URL}"
+if ! mkdir -p "${BIN_FOLDER}"; then
+  echo "Failed to create directory: ${BIN_FOLDER}" >&2
+  exit 1
+fi
+
 if hash curl >/dev/null 2>&1; then
-  curl "${RELEASE_URL}" -o "${BIN_FOLDER}/comfycli" -fsSL --compressed ${CURL_OPTS:-}
+  if ! curl "${RELEASE_URL}" -o "${BIN_FOLDER}/comfycli" -fsSL --compressed ${CURL_OPTS:-}; then
+    echo "Failed to download comfycli using curl" >&2
+    exit 1
+  fi
 elif hash wget >/dev/null 2>&1; then
-  wget ${WGET_OPTS:-} -qO "${BIN_FOLDER}/comfycli" "${RELEASE_URL}"
+  if ! wget ${WGET_OPTS:-} -qO "${BIN_FOLDER}/comfycli" "${RELEASE_URL}"; then
+    echo "Failed to download comfycli using wget" >&2
+    exit 1
+  fi
 else
   echo "Neither curl nor wget was found" >&2
   exit 1
 fi
+
 chmod +x "${BIN_FOLDER}/comfycli"
 
+echo "comfycli has been successfully installed to: ${BIN_FOLDER}"
+echo "You can now use the 'comfycli' command."
+
+case ":$PATH:" in
+  *":${BIN_FOLDER}:"*) ;;
+  *)
+    echo
+    echo "Please add ${BIN_FOLDER} to your PATH to use comfycli from anywhere."
+    echo "You can do this by adding the following line to your shell profile (e.g., ~/.bashrc, ~/.zshrc):"
+    echo "export PATH=\"${BIN_FOLDER}:\$PATH\""
+    ;;
+esac
+
+echo
+echo "╭─────────────────────────────────────────────────────────────╮"
+echo "                         🛠️  comfycli 🛠️"
+echo "╰─────────────────────────────────────────────────────────────╯"
+
 # test run the binary to initialize the home directory
-"${BIN_FOLDER}/comfycli" --help
+help=$("${BIN_FOLDER}/comfycli" --help)
+if [ $? -ne 0 ]; then
+  echo "Failed to run comfycli" >&2
+  exit 1
+fi
+echo $help
