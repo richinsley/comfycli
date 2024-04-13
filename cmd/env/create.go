@@ -22,10 +22,15 @@ var outputverbose bool
 var createCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create a new virtual ComfyUI python environment",
-	Long: `Create a new virtual ComfyUI python environment
+	Long: `Create a new virtual ComfyUI python environment.
+	All parameters after -- are stored as default parameters passed to the 'comfyui' command.
+
 	examples:
 	# create a new environment using the default system recipe with the name default
 	comfycli env create
+
+	# create a default environment with "--listen" as a default parameter
+	comfycli env create -- --listen
 
 	# create a new environment using the default system recipe with the name myenv
 	comfycli env create --name myenv
@@ -36,12 +41,13 @@ var createCmd = &cobra.Command{
 	# combine multiple recipes into a new environment
 	comfycli env create --recipe default,SD15,SDXL --name all_sd`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) > 0 {
-			slog.Error("invalid arguments", "args", args)
-			// print the help
-			cmd.Help()
-			os.Exit(1)
-		}
+		// if len(args) > 0 {
+		// 	slog.Error("invalid arguments", "args", args)
+		// 	// print the help
+		// 	cmd.Help()
+		// 	os.Exit(1)
+		// }
+
 		recipe, _ := cmd.Flags().GetString("recipe")
 		python, _ := cmd.Flags().GetString("python")
 		name, _ := cmd.Flags().GetString("name")
@@ -60,7 +66,7 @@ var createCmd = &cobra.Command{
 				os.Exit(1)
 			}
 
-			r, err = RecipeFromPath(recipe)
+			r, err = RecipeFromFile(file)
 			if err != nil {
 				slog.Error("error deserializing recipe", "error", err)
 				os.Exit(1)

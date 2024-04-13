@@ -89,6 +89,12 @@ func RecipeFromPath(path string) (*EnvRecipe, error) {
 	return ParseRecipe(recipe)
 }
 
+func RecipeFromFile(file string) (*EnvRecipe, error) {
+	paths := make([]string, 0)
+	paths = append(paths, file)
+	return recipeFromPaths(paths)
+}
+
 // RecipePathFromName returns the full path to a recipe file given the recipe name
 // the recipe name is the name of the file without the extension and must reside in the recipes folder
 func RecipePathFromName(name string) (string, error) {
@@ -303,7 +309,8 @@ func MergeRecipes(r1 *EnvRecipe, r2 *EnvRecipe) (*EnvRecipe, error) {
 	return retv, nil
 }
 
-func recipeFromPaths(paths []string) (*EnvRecipe, error) {
+// recipeFromPaths is a recursive function that gets the full path to all recipes including inherited recipes
+func getAllRecipes(paths []string) (map[string]*EnvRecipe, error) {
 	recipes := make(map[string]*EnvRecipe)
 	for _, p := range paths {
 		r, err := RecipeFromPath(p)
@@ -311,6 +318,40 @@ func recipeFromPaths(paths []string) (*EnvRecipe, error) {
 			return nil, err
 		}
 		recipes[r.Name] = r
+		if r.Inherits != nil {
+			inheritPaths := make([]string, 0)
+			for _, i := range r.Inherits {
+				ip, err := RecipePathFromName(i)
+				if err != nil {
+					return nil, err
+				}
+				inheritPaths = append(inheritPaths, ip)
+			}
+			inheritRecipes, err := getAllRecipes(inheritPaths)
+			if err != nil {
+				return nil, err
+			}
+			for k, v := range inheritRecipes {
+				recipes[k] = v
+			}
+		}
+	}
+	return recipes, nil
+}
+
+func recipeFromPaths(paths []string) (*EnvRecipe, error) {
+	// recipes := make(map[string]*EnvRecipe)
+	// for _, p := range paths {
+	// 	r, err := RecipeFromPath(p)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	recipes[r.Name] = r
+	// }
+
+	recipes, err := getAllRecipes(paths)
+	if err != nil {
+		return nil, err
 	}
 
 	// build a dependency graph
@@ -415,7 +456,6 @@ func recipeFromPaths(paths []string) (*EnvRecipe, error) {
 		RecipeFormat: CurrentRecipeFormat,
 	}
 
-	var err error
 	for i := maxordinal; i >= 0; i-- {
 		nodes := graph.GetNodesWithOrdinal(0, i)
 		for _, n := range nodes {

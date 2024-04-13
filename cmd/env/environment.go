@@ -246,7 +246,11 @@ func NewComfyEnvironmentFromRecipe(name string, recipe *EnvRecipe, recipePath st
 
 			// if we downloaded a model, and we are using shared models, create a symlink from the shared models folder to the comfyui models folder
 			if useshared {
-				sharedpath := path.Join(shared_models_path, m.Type, m.Filename)
+				starget := m.SavePath
+				if m.SavePath == "default" {
+					starget = m.Type
+				}
+				sharedpath := path.Join(shared_models_path, starget, m.Filename)
 				var savepath string
 				if m.SavePath == "default" {
 					savepath = m.Type
@@ -255,7 +259,7 @@ func NewComfyEnvironmentFromRecipe(name string, recipe *EnvRecipe, recipePath st
 				}
 				truepath := path.Join(models_path, savepath, m.Filename)
 				// ensure the path that we will put the symlink in exists
-				err = os.MkdirAll(path.Dir(sharedpath), 0755)
+				err = os.MkdirAll(path.Dir(truepath), 0755)
 				if err != nil {
 					fmt.Printf("Error creating symlink path: %v\n", err)
 					return nil, err
