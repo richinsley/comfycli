@@ -137,7 +137,7 @@ case "$ARCH" in
 esac
 
 case "$PLATFORM-$ARCH" in
-  linux-aarch64|linux-ppc64le|linux-64|osx-arm64|osx-64|win-64)
+  linux-arm64|linux-ppc64le|linux-64|osx-arm64|osx-64|win-64)
       ;;  # pass
   *)
     echo "Failed to detect your OS" >&2
