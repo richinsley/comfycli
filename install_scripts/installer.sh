@@ -3,7 +3,7 @@
 # references: https://github.com/mamba-org/micromamba-releases
 # references: https://raw.githubusercontent.com/mamba-org/micromamba-releases/main/install.sh
 
-# set -eu
+set -e
 
 if [ -n "${COMFYCLI_PARENT_PATH}" ]; then
     PATH="$COMFYCLI_PARENT_PATH"
@@ -63,6 +63,40 @@ find_writable_path_dir() {
     done
 
     echo "${HOME}/.local/bin"
+}
+
+add_to_path() {
+  local shell_config
+
+  case "$shell" in
+    zsh)
+      shell_config="$HOME/.zshrc"
+      ;;
+    *)
+      shell_config="$HOME/.bashrc"
+      ;;
+  esac
+
+  if [ ! -f "$shell_config" ]; then
+    echo "The $shell_config file does not exist. Skipping PATH modification."
+    return
+  fi
+
+  if grep -q "export PATH=\"${BIN_FOLDER}:\$PATH\"" "$shell_config"; then
+    echo "The PATH entry for comfycli already exists in $shell_config"
+  else
+    echo
+    read -p "Do you want to add comfycli to your PATH in $shell_config? [Y/n] " confirm
+    confirm=${confirm:-Y}
+
+    if [[ "$confirm" =~ ^[Yy]$ ]]; then
+      echo "export PATH=\"${BIN_FOLDER}:\$PATH\"" >> "$shell_config"
+      echo "Added comfycli to PATH in $shell_config"
+      echo "Please restart your terminal or run 'source $shell_config' to apply the changes."
+    else
+      echo "Skipping PATH modification in $shell_config"
+    fi
+  fi
 }
 
 # Call the function and store the result in a variable
@@ -145,10 +179,7 @@ echo "You can now use the 'comfycli' command."
 case ":$PATH:" in
   *":${BIN_FOLDER}:"*) ;;
   *)
-    echo
-    echo "Please add ${BIN_FOLDER} to your PATH to use comfycli from anywhere."
-    echo "You can do this by adding the following line to your shell profile (e.g., ~/.bashrc, ~/.zshrc):"
-    echo "export PATH=\"${BIN_FOLDER}:\$PATH\""
+    add_to_path
     ;;
 esac
 
