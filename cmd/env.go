@@ -43,4 +43,5 @@ func init() {
 	env.InitRunComfy(envCmd)
 	env.InitLSEnv(envCmd)
 	env.InitRMEnv(envCmd)
+	env.InitUpdate(envCmd)
 }

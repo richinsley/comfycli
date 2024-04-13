@@ -320,3 +320,82 @@ func (c *ComfyEnvironment) DeleteEnvironment() error {
 
 	return nil
 }
+
+func (c *ComfyEnvironment) UpdateEnvironment(feedback kinda.CreateEnvironmentOptions) error {
+	// update the environment
+
+	// update the comfyui repository
+	if feedback == kinda.ShowVerbose || feedback == kinda.ShowProgressBarVerbose {
+		fmt.Printf("Updating ComfyUI repository\n")
+	}
+
+	comfyFolder := filepath.Join(c.Environment.EnvPath, "comfyui")
+	repo, err := git.PlainOpen(comfyFolder)
+	if err != nil {
+		return err
+	}
+
+	// use git to do a git pull
+	w, err := repo.Worktree()
+	if err != nil {
+		return err
+	}
+
+	err = w.Pull(&git.PullOptions{RemoteName: "origin"})
+	if err != nil && err.Error() != "already up-to-date" {
+		return err
+	}
+
+	// pip install any new requirements in the comfyui requirements.txt
+	comfyReqPath := path.Join(comfyFolder, "requirements.txt")
+	if _, err := os.Stat(comfyReqPath); err == nil {
+		if feedback != kinda.ShowNothing {
+			fmt.Println("Installing ComfyUI pip required packages:")
+		}
+		err = c.Environment.PipInstallRequirmements(comfyReqPath, feedback)
+		if err != nil {
+			return fmt.Errorf("error installing requirements: %v", err)
+		}
+	}
+
+	// get the list of all folders in the comfui custom_nodes folder
+	customNodesPath := path.Join(comfyFolder, "custom_nodes")
+	entries, err := os.ReadDir(customNodesPath)
+	if err != nil {
+		return err
+	}
+
+	// for each folder in the custom_nodes folder, check if it is a git repo, and if it is, do a git pull
+	for _, v := range entries {
+		if v.IsDir() {
+			repo, err := git.PlainOpen(comfyFolder)
+			if err != nil {
+				return err
+			}
+
+			// use git to do a git pull
+			w, err := repo.Worktree()
+			if err != nil {
+				return err
+			}
+
+			err = w.Pull(&git.PullOptions{RemoteName: "origin"})
+			if err != nil && err.Error() != "already up-to-date" {
+				return err
+			}
+
+			if err == nil {
+				// pip install any new requirements in the comfyui requirements.txt
+				customReqPath := path.Join(customNodesPath, v.Name(), "requirements.txt")
+				if _, err := os.Stat(customReqPath); err == nil {
+					err = c.Environment.PipInstallRequirmements(customReqPath, feedback)
+					if err != nil {
+						return fmt.Errorf("error installing requirements: %v", err)
+					}
+				}
+			}
+		}
+	}
+
+	return nil
+}

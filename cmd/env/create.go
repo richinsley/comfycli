@@ -28,13 +28,13 @@ var createCmd = &cobra.Command{
 	comfycli env create
 
 	# create a new environment using the default system recipe with the name myenv
-	comfycli env create -name myenv
+	comfycli env create --name myenv
 
 	# create a new environment using the default recipe, force it to be python 3.10 and name it myenv
-	comfycli env create -recipe default -python 3.10 -name myenv
+	comfycli env create --recipe default --python 3.10 --name myenv
 	
 	# combine multiple recipes into a new environment
-	comfycli env create -recipe default,SD15,SDXL -name all_sd`,
+	comfycli env create --recipe default,SD15,SDXL --name all_sd`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) > 0 {
 			slog.Error("invalid arguments", "args", args)
