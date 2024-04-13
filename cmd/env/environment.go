@@ -325,7 +325,7 @@ func (c *ComfyEnvironment) UpdateEnvironment(feedback kinda.CreateEnvironmentOpt
 	// update the environment
 
 	// update the comfyui repository
-	if feedback == kinda.ShowVerbose || feedback == kinda.ShowProgressBarVerbose {
+	if feedback == kinda.ShowVerbose || feedback == kinda.ShowProgressBarVerbose || feedback == kinda.ShowProgressBar {
 		fmt.Printf("Updating ComfyUI repository\n")
 	}
 
@@ -346,16 +346,20 @@ func (c *ComfyEnvironment) UpdateEnvironment(feedback kinda.CreateEnvironmentOpt
 		return err
 	}
 
-	// pip install any new requirements in the comfyui requirements.txt
-	comfyReqPath := path.Join(comfyFolder, "requirements.txt")
-	if _, err := os.Stat(comfyReqPath); err == nil {
-		if feedback != kinda.ShowNothing {
-			fmt.Println("Installing ComfyUI pip required packages:")
+	if err == nil {
+		// pip install any new requirements in the comfyui requirements.txt
+		comfyReqPath := path.Join(comfyFolder, "requirements.txt")
+		if _, err := os.Stat(comfyReqPath); err == nil {
+			if feedback != kinda.ShowNothing {
+				fmt.Println("Installing ComfyUI pip required packages:")
+			}
+			err = c.Environment.PipInstallRequirmements(comfyReqPath, feedback)
+			if err != nil {
+				return fmt.Errorf("error installing requirements: %v", err)
+			}
 		}
-		err = c.Environment.PipInstallRequirmements(comfyReqPath, feedback)
-		if err != nil {
-			return fmt.Errorf("error installing requirements: %v", err)
-		}
+	} else if feedback == kinda.ShowVerbose || feedback == kinda.ShowProgressBarVerbose || feedback == kinda.ShowProgressBar {
+		fmt.Printf("ComfyUI repository already up-to-date\n")
 	}
 
 	// get the list of all folders in the comfui custom_nodes folder
@@ -368,9 +372,16 @@ func (c *ComfyEnvironment) UpdateEnvironment(feedback kinda.CreateEnvironmentOpt
 	// for each folder in the custom_nodes folder, check if it is a git repo, and if it is, do a git pull
 	for _, v := range entries {
 		if v.IsDir() {
-			repo, err := git.PlainOpen(comfyFolder)
+			// dir entry to path string
+			repopath := path.Join(customNodesPath, v.Name())
+			repo, err := git.PlainOpen(repopath)
 			if err != nil {
-				return err
+				// not a git repo
+				continue
+			}
+
+			if feedback == kinda.ShowVerbose || feedback == kinda.ShowProgressBarVerbose || feedback == kinda.ShowProgressBar {
+				fmt.Printf("Updating custom node repository: %s\n", v.Name())
 			}
 
 			// use git to do a git pull
@@ -393,6 +404,8 @@ func (c *ComfyEnvironment) UpdateEnvironment(feedback kinda.CreateEnvironmentOpt
 						return fmt.Errorf("error installing requirements: %v", err)
 					}
 				}
+			} else if feedback == kinda.ShowVerbose || feedback == kinda.ShowProgressBarVerbose || feedback == kinda.ShowProgressBar {
+				fmt.Printf("Custom node repository %s already up-to-date\n", v.Name())
 			}
 		}
 	}

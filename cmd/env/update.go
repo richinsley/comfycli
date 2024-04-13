@@ -19,18 +19,27 @@ var updateCmd = &cobra.Command{
 	Short: "Update an environment",
 	Long:  `Update an environment`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) == 0 {
-			slog.Error("error: no environment specified")
-			os.Exit(1)
-		}
-		env := args[0]
-
 		// get the list of environments
 		envlist, err := GetComfyEnvironments()
 		if err != nil {
 			slog.Error("error getting environment list", "error", err)
 			os.Exit(1)
 		}
+
+		if len(envlist) == 0 {
+			fmt.Println("No environments found.  Create a new environment with 'comfycli env create <name>'")
+			os.Exit(0)
+		}
+
+		if len(args) == 0 {
+			if len(envlist) != 1 {
+				slog.Error("error: no environment specified")
+				os.Exit(1)
+			}
+			// default to the first environment
+			args = append(args, envlist[0])
+		}
+		env := args[0]
 
 		// check if the environment exists
 		gotit := false
@@ -52,7 +61,7 @@ var updateCmd = &cobra.Command{
 		}
 
 		if !CLIOptions.Yes {
-			response, err := util.YesNo(fmt.Sprintf("Are you sure you want to remove environment %s: %s", env, newenv.Environment.EnvPath), true)
+			response, err := util.YesNo(fmt.Sprintf("Update environment %s: %s", env, newenv.Environment.EnvPath), true)
 			if err != nil {
 				slog.Error("error getting user response", "error", err)
 				os.Exit(1)
@@ -65,13 +74,16 @@ var updateCmd = &cobra.Command{
 		// ask the user if they are sure
 
 		// update the environment
-		fmt.Printf("Update environement %s: %s\n", env, newenv.Environment.EnvPath)
+
 		var outputstyle kinda.CreateEnvironmentOptions = kinda.ShowProgressBar
 		if outputquiet {
 			outputstyle = kinda.ShowNothing
 		}
 		if outputverbose {
 			outputstyle = kinda.ShowProgressBarVerbose
+		}
+		if !outputquiet {
+			fmt.Printf("Updating environment %s: %s\n", env, newenv.Environment.EnvPath)
 		}
 
 		err = newenv.UpdateEnvironment(outputstyle)
