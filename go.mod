@@ -7,8 +7,8 @@ require (
 	github.com/go-git/go-git/v5 v5.12.0
 	github.com/google/uuid v1.4.0
 	github.com/mattn/go-sixel v0.0.5
-	github.com/richinsley/comfy2go v0.6.0
-	github.com/richinsley/kinda v0.0.0-20240405143253-4e7432a3bf08
+	github.com/richinsley/comfy2go v0.6.1
+	github.com/richinsley/kinda v0.1.0
 	github.com/schollz/progressbar/v3 v3.13.1
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2
