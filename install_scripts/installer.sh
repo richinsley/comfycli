@@ -46,10 +46,17 @@ find_writable_path_dir() {
         "/opt/homebrew/bin"
     )
 
-    IFS=':' path_dirs=("${(@s/:/)COMFYCLI_PARENT_PATH}")
+    case "$shell" in
+        zsh)
+            IFS=':' path_dirs=("${(@s/:/)COMFYCLI_PARENT_PATH}")
+            ;;
+        *)
+            IFS=':' read -r -a path_dirs <<< "$COMFYCLI_PARENT_PATH"
+            ;;
+    esac
 
     for dir in "${common_install_paths[@]}"; do
-        if [[ "${path_dirs[@]}" =~ "$dir" ]] && [ -w "$dir" ]; then
+        if [[ ":${path_dirs[*]}:" == *":$dir:"* ]] && [ -w "$dir" ]; then
             echo "$dir"
             return 0
         fi
@@ -57,7 +64,6 @@ find_writable_path_dir() {
 
     echo "${HOME}/.local/bin"
 }
-
 
 # Call the function and store the result in a variable
 writable_path_dir=$(find_writable_path_dir)
