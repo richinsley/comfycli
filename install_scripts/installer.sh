@@ -5,6 +5,11 @@
 
 # set -eu
 
+# Set a default PATH known to include required utilities if PATH is not properly set
+if [ -z "$(command -v mkdir)" ]; then
+    export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
+fi
+
 # Detect the shell from which the script was called
 parent=$(ps -o comm $PPID |tail -1)
 parent=${parent#-}  # remove the leading dash that login shells have
