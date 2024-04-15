@@ -1,0 +1,147 @@
+{
+    "name": "controlnet_SDXL",
+    "description": "ControlNet v1-1 SD 1.5",
+    "reference": "https://huggingface.co/stabilityai/control-lora",
+    "version": "1.0",
+    "recipe_format": "1.0",
+    "inherits": ["SDXL"],
+    "models": [
+        {
+            "name": "stabilityai/control-lora-canny-rank128.safetensors",
+            "type": "controlnet",
+            "base": "SDXL",
+            "save_path": "default",
+            "description": "Control-LoRA: canny rank128",
+            "reference": "https://huggingface.co/stabilityai/control-lora",
+            "filename": "control-lora-canny-rank128.safetensors",
+            "url": "https://huggingface.co/stabilityai/control-lora/resolve/main/control-LoRAs-rank128/control-lora-canny-rank128.safetensors"
+        },
+        {
+            "name": "stabilityai/control-lora-depth-rank128.safetensors",
+            "type": "controlnet",
+            "base": "SDXL",
+            "save_path": "default",
+            "description": "Control-LoRA: depth rank128",
+            "reference": "https://huggingface.co/stabilityai/control-lora",
+            "filename": "control-lora-depth-rank128.safetensors",
+            "url": "https://huggingface.co/stabilityai/control-lora/resolve/main/control-LoRAs-rank128/control-lora-depth-rank128.safetensors"
+        },
+        {
+            "name": "stabilityai/control-lora-recolor-rank128.safetensors",
+            "type": "controlnet",
+            "base": "SDXL",
+            "save_path": "default",
+            "description": "Control-LoRA: recolor rank128",
+            "reference": "https://huggingface.co/stabilityai/control-lora",
+            "filename": "control-lora-recolor-rank128.safetensors",
+            "url": "https://huggingface.co/stabilityai/control-lora/resolve/main/control-LoRAs-rank128/control-lora-recolor-rank128.safetensors"
+        },
+        {
+            "name": "stabilityai/control-lora-sketch-rank128-metadata.safetensors",
+            "type": "controlnet",
+            "base": "SDXL",
+            "save_path": "default",
+            "description": "Control-LoRA: sketch rank128 metadata",
+            "reference": "https://huggingface.co/stabilityai/control-lora",
+            "filename": "control-lora-sketch-rank128-metadata.safetensors",
+            "url": "https://huggingface.co/stabilityai/control-lora/resolve/main/control-LoRAs-rank128/control-lora-sketch-rank128-metadata.safetensors"
+        },
+        {
+            "name": "stabilityai/control-lora-canny-rank256.safetensors",
+            "type": "controlnet",
+            "base": "SDXL",
+            "save_path": "default",
+            "description": "Control-LoRA: canny rank256",
+            "reference": "https://huggingface.co/stabilityai/control-lora",
+            "filename": "control-lora-canny-rank256.safetensors",
+            "url": "https://huggingface.co/stabilityai/control-lora/resolve/main/control-LoRAs-rank256/control-lora-canny-rank256.safetensors"
+        },
+        {
+            "name": "stabilityai/control-lora-depth-rank256.safetensors",
+            "type": "controlnet",
+            "base": "SDXL",
+            "save_path": "default",
+            "description": "Control-LoRA: depth rank256",
+            "reference": "https://huggingface.co/stabilityai/control-lora",
+            "filename": "control-lora-depth-rank256.safetensors",
+            "url": "https://huggingface.co/stabilityai/control-lora/resolve/main/control-LoRAs-rank256/control-lora-depth-rank256.safetensors"
+        },
+        {
+            "name": "stabilityai/control-lora-recolor-rank256.safetensors",
+            "type": "controlnet",
+            "base": "SDXL",
+            "save_path": "default",
+            "description": "Control-LoRA: recolor rank256",
+            "reference": "https://huggingface.co/stabilityai/control-lora",
+            "filename": "control-lora-recolor-rank256.safetensors",
+            "url": "https://huggingface.co/stabilityai/control-lora/resolve/main/control-LoRAs-rank256/control-lora-recolor-rank256.safetensors"
+        },
+        {
+            "name": "stabilityai/control-lora-sketch-rank256.safetensors",
+            "type": "controlnet",
+            "base": "SDXL",
+            "save_path": "default",
+            "description": "Control-LoRA: sketch rank256",
+            "reference": "https://huggingface.co/stabilityai/control-lora",
+            "filename": "control-lora-sketch-rank256.safetensors",
+            "url": "https://huggingface.co/stabilityai/control-lora/resolve/main/control-LoRAs-rank256/control-lora-sketch-rank256.safetensors"
+        },
+        {
+            "name": "kohya-ss/ControlNet-LLLite: SDXL Canny Anime",
+            "type": "controlnet",
+            "base": "SDXL",
+            "save_path": "custom_nodes/ControlNet-LLLite-ComfyUI/models",
+            "description": "[46.2MB] An extremely compactly designed controlnet model (a.k.a. ControlNet-LLLite). Note: The model structure is highly experimental and may be subject to change in the future.",
+            "reference": "https://huggingface.co/kohya-ss/controlnet-lllite",
+            "filename": "controllllite_v01032064e_sdxl_canny_anime.safetensors",
+            "url": "https://huggingface.co/kohya-ss/controlnet-lllite/resolve/main/controllllite_v01032064e_sdxl_canny_anime.safetensors"
+        },
+        {
+            "name": "SDXL-controlnet: OpenPose (v2)",
+            "type": "controlnet",
+            "base": "SDXL",
+            "save_path": "default",
+            "description": "ControlNet openpose model for SDXL",
+            "reference": "https://huggingface.co/thibaud/controlnet-openpose-sdxl-1.0",
+            "filename": "OpenPoseXL2.safetensors",
+            "url": "https://huggingface.co/thibaud/controlnet-openpose-sdxl-1.0/resolve/main/OpenPoseXL2.safetensors"
+        },
+        {
+            "name": "controlnet-SargeZT/controlnet-sd-xl-1.0-softedge-dexined",
+            "type": "controlnet",
+            "base": "SDXL",
+            "save_path": "default",
+            "description": "ControlNet softedge model for SDXL",
+            "reference": "https://huggingface.co/SargeZT/controlnet-sd-xl-1.0-softedge-dexined",
+            "filename": "controlnet-sd-xl-1.0-softedge-dexined.safetensors",
+            "url": "https://huggingface.co/SargeZT/controlnet-sd-xl-1.0-softedge-dexined/resolve/main/controlnet-sd-xl-1.0-softedge-dexined.safetensors"
+        },
+        {
+            "name": "controlnet-SargeZT/controlnet-sd-xl-1.0-depth-16bit-zoe",
+            "type": "controlnet",
+            "base": "SDXL",
+            "save_path": "default",
+            "description": "ControlNet depth-zoe model for SDXL",
+            "reference": "https://huggingface.co/SargeZT/controlnet-sd-xl-1.0-depth-16bit-zoe",
+            "filename": "depth-zoe-xl-v1.0-controlnet.safetensors",
+            "url": "https://huggingface.co/SargeZT/controlnet-sd-xl-1.0-depth-16bit-zoe/resolve/main/depth-zoe-xl-v1.0-controlnet.safetensors"
+        },
+        {
+            "name": "monster-labs - Controlnet QR Code Monster v1 For SDXL",
+            "type": "controlnet",
+            "base": "SDXL",
+            "save_path": "default",
+            "description": "monster-labs - Controlnet QR Code Monster v1 For SDXL", 
+            "reference": "https://huggingface.co/monster-labs/control_v1p_sdxl_qrcode_monster",
+            "filename": "control_v1p_sdxl_qrcode_monster.safetensors",
+            "url": "https://huggingface.co/monster-labs/control_v1p_sdxl_qrcode_monster/resolve/main/diffusion_pytorch_model.safetensors"
+        }
+    ],
+    "custom_nodes": [
+        {
+          "name": "Fannovel16_controlnet_auziliary_preprocessors",
+          "git_url": "https://github.com/Fannovel16/comfyui_controlnet_aux.git",
+          "branch": "main"
+        }
+    ]
+}

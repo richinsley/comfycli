@@ -1,0 +1,187 @@
+{
+    "name": "controlnet_SD15",
+    "description": "ControlNet v1-1 SD 1.5",
+    "reference": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors",
+    "version": "1.0",
+    "recipe_format": "1.0",
+    "inherits": ["SD15"],
+    "models": [
+        {
+            "name": "ControlNet-v1-1 (ip2p; fp16)",
+            "type": "controlnet",
+            "base": "SD1.5",
+            "save_path": "default",
+            "description": "Safetensors/FP16 versions of the new ControlNet-v1-1 checkpoints (ip2p)",
+            "reference": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors",
+            "filename": "control_v11e_sd15_ip2p_fp16.safetensors",
+            "url": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors/resolve/main/control_v11e_sd15_ip2p_fp16.safetensors"
+          },
+          {
+            "name": "ControlNet-v1-1 (shuffle; fp16)",
+            "type": "controlnet",
+            "base": "SD1.5",
+            "save_path": "default",
+            "description": "Safetensors/FP16 versions of the new ControlNet-v1-1 checkpoints (shuffle)",
+            "reference": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors",
+            "filename": "control_v11e_sd15_shuffle_fp16.safetensors",
+            "url": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors/resolve/main/control_v11e_sd15_shuffle_fp16.safetensors"
+          },    
+          {
+            "name": "ControlNet-v1-1 (canny; fp16)",
+            "type": "controlnet",
+            "base": "SD1.5",
+            "save_path": "default",
+            "description": "Safetensors/FP16 versions of the new ControlNet-v1-1 checkpoints (canny)",
+            "reference": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors",
+            "filename": "control_v11p_sd15_canny_fp16.safetensors",
+            "url": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors/resolve/main/control_v11p_sd15_canny_fp16.safetensors"
+          },
+          {
+            "name": "ControlNet-v1-1 (depth; fp16)",
+            "type": "controlnet",
+            "base": "SD1.5",
+            "save_path": "default",
+            "description": "Safetensors/FP16 versions of the new ControlNet-v1-1 checkpoints (depth)",
+            "reference": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors",
+            "filename": "control_v11f1p_sd15_depth_fp16.safetensors",
+            "url": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors/resolve/main/control_v11f1p_sd15_depth_fp16.safetensors"
+          },
+          {
+            "name": "ControlNet-v1-1 (inpaint; fp16)",
+            "type": "controlnet",
+            "base": "SD1.5",
+            "save_path": "default",
+            "description": "Safetensors/FP16 versions of the new ControlNet-v1-1 checkpoints (inpaint)",
+            "reference": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors",
+            "filename": "control_v11p_sd15_inpaint_fp16.safetensors",
+            "url": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors/resolve/main/control_v11p_sd15_inpaint_fp16.safetensors"
+          },
+          {
+            "name": "ControlNet-v1-1 (lineart; fp16)",
+            "type": "controlnet",
+            "base": "SD1.5",
+            "save_path": "default",
+            "description": "Safetensors/FP16 versions of the new ControlNet-v1-1 checkpoints (lineart)",
+            "reference": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors",
+            "filename": "control_v11p_sd15_lineart_fp16.safetensors",
+            "url": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors/resolve/main/control_v11p_sd15_lineart_fp16.safetensors"
+          },
+          {
+            "name": "ControlNet-v1-1 (mlsd; fp16)",
+            "type": "controlnet",
+            "base": "SD1.5",
+            "save_path": "default",
+            "description": "Safetensors/FP16 versions of the new ControlNet-v1-1 checkpoints (mlsd)",
+            "reference": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors",
+            "filename": "control_v11p_sd15_mlsd_fp16.safetensors",
+            "url": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors/resolve/main/control_v11p_sd15_mlsd_fp16.safetensors"
+          },
+          {
+            "name": "ControlNet-v1-1 (normalbae; fp16)",
+            "type": "controlnet",
+            "base": "SD1.5",
+            "save_path": "default",
+            "description": "Safetensors/FP16 versions of the new ControlNet-v1-1 checkpoints (normalbae)",
+            "reference": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors",
+            "filename": "control_v11p_sd15_normalbae_fp16.safetensors",
+            "url": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors/resolve/main/control_v11p_sd15_normalbae_fp16.safetensors"
+          },
+          {
+            "name": "ControlNet-v1-1 (openpose; fp16)",
+            "type": "controlnet",
+            "base": "SD1.5",
+            "save_path": "default",
+            "description": "Safetensors/FP16 versions of the new ControlNet-v1-1 checkpoints (openpose)",
+            "reference": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors",
+            "filename": "control_v11p_sd15_openpose_fp16.safetensors",
+            "url": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors/resolve/main/control_v11p_sd15_openpose_fp16.safetensors"
+          },
+          {
+            "name": "ControlNet-v1-1 (scribble; fp16)",
+            "type": "controlnet",
+            "base": "SD1.5",
+            "save_path": "default",
+            "description": "Safetensors/FP16 versions of the new ControlNet-v1-1 checkpoints (scribble)",
+            "reference": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors",
+            "filename": "control_v11p_sd15_scribble_fp16.safetensors",
+            "url": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors/resolve/main/control_v11p_sd15_scribble_fp16.safetensors"
+          },
+          {
+            "name": "ControlNet-v1-1 (seg; fp16)",
+            "type": "controlnet",
+            "base": "SD1.5",
+            "save_path": "default",
+            "description": "Safetensors/FP16 versions of the new ControlNet-v1-1 checkpoints (seg)",
+            "reference": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors",
+            "filename": "control_v11p_sd15_seg_fp16.safetensors",
+            "url": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors/resolve/main/control_v11p_sd15_seg_fp16.safetensors"
+          },
+          {
+            "name": "ControlNet-v1-1 (softedge; fp16)",
+            "type": "controlnet",
+            "base": "SD1.5",
+            "save_path": "default",
+            "description": "Safetensors/FP16 versions of the new ControlNet-v1-1 checkpoints (softedge)",
+            "reference": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors",
+            "filename": "control_v11p_sd15_softedge_fp16.safetensors",
+            "url": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors/resolve/main/control_v11p_sd15_softedge_fp16.safetensors"
+          },
+          {
+            "name": "ControlNet-v1-1 (anime; fp16)",
+            "type": "controlnet",
+            "base": "SD1.5",
+            "save_path": "default",
+            "description": "Safetensors/FP16 versions of the new ControlNet-v1-1 checkpoints (anime)",
+            "reference": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors",
+            "filename": "control_v11p_sd15s2_lineart_anime_fp16.safetensors",
+            "url": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors/resolve/main/control_v11p_sd15s2_lineart_anime_fp16.safetensors"
+          },
+          {
+            "name": "ControlNet-v1-1 (tile; fp16; v11u)",
+            "type": "controlnet",
+            "base": "SD1.5",
+            "save_path": "default",
+            "description": "Safetensors/FP16 versions of the new ControlNet-v1-1 checkpoints (tile) / v11u",
+            "reference": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors",
+            "filename": "control_v11u_sd15_tile_fp16.safetensors",
+            "url": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors/resolve/main/control_v11u_sd15_tile_fp16.safetensors"
+          },
+          {
+            "name": "ControlNet-v1-1 (tile; fp16; v11f1e)",
+            "type": "controlnet",
+            "base": "SD1.5",
+            "save_path": "default",
+            "description": "Safetensors/FP16 versions of the new ControlNet-v1-1 checkpoints (tile) / v11f1e\nYou need to this model for <B>Tiled Resample</B>",
+            "reference": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors",
+            "filename": "control_v11f1e_sd15_tile_fp16.safetensors",
+            "url": "https://huggingface.co/comfyanonymous/ControlNet-v1-1_fp16_safetensors/resolve/main/control_v11f1e_sd15_tile_fp16.safetensors"
+          },
+          {
+            "name": "ControlNet-HandRefiner-pruned (inpaint-depth-hand; fp16)",
+            "type": "controlnet",
+            "base": "SD1.5",
+            "save_path": "default",
+            "description": "This inpaint-depth controlnet model is specialized for the hand refiner.",
+            "reference": "https://huggingface.co/hr16/ControlNet-HandRefiner-pruned",
+            "filename": "control_sd15_inpaint_depth_hand_fp16.safetensors",
+            "url": "https://huggingface.co/hr16/ControlNet-HandRefiner-pruned/resolve/main/control_sd15_inpaint_depth_hand_fp16.safetensors"
+          },
+          {
+            "name": "control_boxdepth_LooseControlfp16 (fp16)",
+            "type": "controlnet",
+            "base": "SD1.5",
+            "save_path": "default",
+            "description": "Loose ControlNet model",
+            "reference": "https://huggingface.co/ioclab/LooseControl_WebUICombine",
+            "filename": "control_boxdepth_LooseControlfp16.safetensors",
+            "url": "https://huggingface.co/ioclab/LooseControl_WebUICombine/resolve/main/control_boxdepth_LooseControlfp16.safetensors"
+          }
+    ],
+    "custom_nodes": [
+        {
+          "name": "Fannovel16_controlnet_auziliary_preprocessors",
+          "git_url": "https://github.com/Fannovel16/comfyui_controlnet_aux.git",
+          "branch": "main"
+        }
+    ]
+}
