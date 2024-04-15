@@ -1,6 +1,7 @@
 {
     "name": "ipadapter_v2",
-    "description": "IPAdapter v2 (https://github.com/cubiq/ComfyUI_IPAdapter_plus)",
+    "description": "IPAdapter v2 models for SD1.5 and SDXL",
+    "reference": "https://huggingface.co/h94/IP-Adapter",
     "version": "1.0",
     "recipe_format": "1.0",
     "inherits": ["SDXL", "SD15"],

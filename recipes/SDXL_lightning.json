@@ -1,0 +1,40 @@
+{
+    "name": "SDXL_lightning",
+    "description": "SDXL Lightning Lora",
+    "reference": "https://huggingface.co/ByteDance/SDXL-Lightning",
+    "version": "1.0",
+    "recipe_format": "1.0",
+    "inherits": ["SDXL"],
+    "models": [
+        {
+            "name": "SDXL Lightning LoRA (2step)",
+            "type": "lora",
+            "base": "SDXL",
+            "save_path": "loras/SDXL-Lightning",
+            "description": "SDXL Lightning LoRA (2step)",
+            "reference": "https://huggingface.co/ByteDance/SDXL-Lightning",
+            "filename": "sdxl_lightning_2step_lora.safetensors",
+            "url": "https://huggingface.co/ByteDance/SDXL-Lightning/resolve/main/sdxl_lightning_2step_lora.safetensors"
+          },
+          {
+            "name": "SDXL Lightning LoRA (4step)",
+            "type": "lora",
+            "base": "SDXL",
+            "save_path": "loras/SDXL-Lightning",
+            "description": "SDXL Lightning LoRA (4step)",
+            "reference": "https://huggingface.co/ByteDance/SDXL-Lightning",
+            "filename": "sdxl_lightning_4step_lora.safetensors",
+            "url": "https://huggingface.co/ByteDance/SDXL-Lightning/resolve/main/sdxl_lightning_4step_lora.safetensors"
+          },
+          {
+            "name": "SDXL Lightning LoRA (8step)",
+            "type": "lora",
+            "base": "SDXL",
+            "save_path": "loras/SDXL-Lightning",
+            "description": "SDXL Lightning LoRA (8tep)",
+            "reference": "https://huggingface.co/ByteDance/SDXL-Lightning",
+            "filename": "sdxl_lightning_8step_lora.safetensors",
+            "url": "https://huggingface.co/ByteDance/SDXL-Lightning/resolve/main/sdxl_lightning_8step_lora.safetensors"
+          }
+    ]
+}
