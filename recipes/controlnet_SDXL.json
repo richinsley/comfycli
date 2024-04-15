@@ -1,6 +1,6 @@
 {
     "name": "controlnet_SDXL",
-    "description": "ControlNet v1-1 SD 1.5",
+    "description": "ControlNet v1-1 SDXL",
     "reference": "https://huggingface.co/stabilityai/control-lora",
     "version": "1.0",
     "recipe_format": "1.0",
