@@ -44,4 +44,5 @@ func init() {
 	env.InitLSEnv(envCmd)
 	env.InitRMEnv(envCmd)
 	env.InitUpdate(envCmd)
+	env.InitDefault(envCmd)
 }
