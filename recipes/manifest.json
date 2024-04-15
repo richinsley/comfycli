@@ -1,22 +1,26 @@
-[
-    {
-        "name": "controlnet_SD15",
-        "version": "1.0.0",
-        "description": "ControlNet v1-1 SD 1.5"
-    },
-    {
-        "name": "controlnet_SDXL",
-        "version": "1.0.0",
-        "description": "ControlNet v1-1 SDXL"
-    },
-    {
-        "name": "ipadapter_v2",
-        "version": "1.0.0",
-        "description": "IPAdapter v2 models for SD1.5 and SDXL"
-    },
-    {
-        "name": "SDXL_lighting",
-        "version": "1.0.0",
-        "description": "SDXL Lightning Lora"
-    }
-]
+{
+    "name": "Primary Comfycli recipes",
+    "recipes":
+        [
+            {
+                "name": "controlnet_SD15",
+                "version": "1.0.0",
+                "description": "ControlNet v1-1 SD 1.5"
+            },
+            {
+                "name": "controlnet_SDXL",
+                "version": "1.0.0",
+                "description": "ControlNet v1-1 SDXL"
+            },
+            {
+                "name": "ipadapter_v2",
+                "version": "1.0.0",
+                "description": "IPAdapter v2 models for SD1.5 and SDXL"
+            },
+            {
+                "name": "SDXL_lighting",
+                "version": "1.0.0",
+                "description": "SDXL Lightning Lora"
+            }
+        ]
+}
