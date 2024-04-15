@@ -23,14 +23,11 @@ var runcomfyCmd = &cobra.Command{
 	examples:
 	# run ComfyUI in the default environment
 	comfycli env runcomfy -- --help
-	
-	# get ComfyUI command line help
-	comfycli env runcomfy -- --help
 
 	# run ComfyUI in the myenv environment.  Pass the --listen and --highvram arguments to the ComfyUI script
 	comfycli env runcomfy myenv -- --listen --highvram`,
-  PreRun: func(cmd *cobra.Command, args []string) {
-    CheckForDefaultRecipe()
+	PreRun: func(cmd *cobra.Command, args []string) {
+		CheckForDefaultRecipe()
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		// if no environment name is specified, default to 'default'

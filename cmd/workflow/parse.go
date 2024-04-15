@@ -57,4 +57,6 @@ to a file or the terminal. The first argument is the path to the workflow file.`
 
 func InitParse(workflowCmd *cobra.Command) {
 	workflowCmd.AddCommand(parseCmd)
+
+	parseCmd.PersistentFlags().StringVarP(&CLIOptions.GraphOutPath, "graphout", "g", "", "Path to write workflow graph JSON")
 }

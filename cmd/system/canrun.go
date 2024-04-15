@@ -6,6 +6,7 @@ package system
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/richinsley/comfy2go/client"
 	"github.com/richinsley/comfy2go/graphapi"
@@ -52,19 +53,28 @@ func getMissingCombos(c *client.ComfyClient, graph *graphapi.Graph) []missingCom
 					// combo is not a string value
 					continue
 				}
-				inputrawprop := obj.InputPropertiesByID[combo.Name()]
-				inputcomboprop, _ := (*inputrawprop).ToComboProperty()
-				inputcombovalues := inputcomboprop.Values
+				if obj != nil && obj.InputPropertiesByID != nil {
+					inputrawprop := obj.InputPropertiesByID[combo.Name()]
+					inputcomboprop, _ := (*inputrawprop).ToComboProperty()
+					inputcombovalues := inputcomboprop.Values
 
-				// check is cvalue is in inputcombovalues
-				if !contains(inputcombovalues, cvalue) {
-					mvalue := missingComboValue{
-						NodeTitle:     n.DisplayName,
-						NodeType:      n.Type,
-						PropertyName:  p.Name(),
-						PropertyValue: p.GetValue().(string),
+					// check is cvalue is in inputcombovalues
+					if !contains(inputcombovalues, cvalue) {
+						// ignore cvalue that ends with image extension
+						// convert to lower case and check if it ends with .png, .jpg, .jpeg, .gif
+						tolower := strings.ToLower(cvalue)
+						if strings.HasSuffix(tolower, ".png") || strings.HasSuffix(tolower, ".jpg") || strings.HasSuffix(tolower, ".jpeg") || strings.HasSuffix(tolower, ".gif") {
+							continue
+						}
+
+						mvalue := missingComboValue{
+							NodeTitle:     n.DisplayName,
+							NodeType:      n.Type,
+							PropertyName:  p.Name(),
+							PropertyValue: p.GetValue().(string),
+						}
+						missing = append(missing, mvalue)
 					}
-					missing = append(missing, mvalue)
 				}
 			}
 		}
