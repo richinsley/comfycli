@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"image"
+	"io/fs"
 	"log/slog"
 	"net"
 	"net/http"
@@ -331,19 +332,33 @@ func ScanJsonFromReader(r io.Reader) (interface{}, error) {
 	return jobj, nil
 }
 
-func ListFiles(path string) ([]string, error) {
+func ListFiles(path string, topOnly bool) ([]string, error) {
 	var files []string
-	err := filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
+	if topOnly {
+		// Read only the top level of the directory.
+		entries, err := os.ReadDir(path)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		if !info.IsDir() {
-			files = append(files, path)
+		for _, entry := range entries {
+			if !entry.IsDir() {
+				files = append(files, filepath.Join(path, entry.Name()))
+			}
 		}
-		return nil
-	})
-	if err != nil {
-		return nil, err
+	} else {
+		// Walk through the directory recursively.
+		err := filepath.Walk(path, func(path string, info fs.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			if !info.IsDir() {
+				files = append(files, path)
+			}
+			return nil
+		})
+		if err != nil {
+			return nil, err
+		}
 	}
 	return files, nil
 }

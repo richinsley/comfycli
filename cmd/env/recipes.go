@@ -20,7 +20,7 @@ import (
 
 func GetRecipeList(recipesPath string) ([]string, error) {
 	// get list of recipe files from the recipes folder
-	recipeFiles, err := util.ListFiles(recipesPath)
+	recipeFiles, err := util.ListFiles(recipesPath, true)
 	if err != nil {
 		return nil, err
 	}
@@ -482,45 +482,12 @@ func HasDefaultRecipe() bool {
 	return true
 }
 
-// GetAllDefaultRecipes returns a list of all default recipes (recipes that start with "default_")
-// the key is the recipe name and the value is the recipe path
-/*
 func GetAllDefaultRecipes() (map[string]string, error) {
 	if CLIOptions.RecipesPath == "" {
 		return nil, fmt.Errorf("recipes path not set")
 	}
 
-	recipeFiles, err := util.ListFiles(CLIOptions.RecipesPath)
-	if err != nil {
-		return nil, err
-	}
-
-	recipes := make(map[string]string)
-	for _, f := range recipeFiles {
-		_, filename := path.Split(f)
-		var extension = filepath.Ext(filename)
-		if extension != ".json" {
-			continue
-		}
-		var name = filename[0 : len(filename)-len(extension)]
-		if strings.HasPrefix(name, "default_") {
-			if runtime.GOOS == "windows" {
-				// god I hate windows
-				s := strings.Split(name, "\\")
-				name = s[len(s)-1]
-			}
-			recipes[name] = f
-		}
-	}
-	return recipes, nil
-}
-*/
-func GetAllDefaultRecipes() (map[string]string, error) {
-	if CLIOptions.RecipesPath == "" {
-		return nil, fmt.Errorf("recipes path not set")
-	}
-
-	recipeFiles, err := util.ListFiles(CLIOptions.RecipesPath)
+	recipeFiles, err := util.ListFiles(CLIOptions.RecipesPath, true)
 	if err != nil {
 		return nil, err
 	}

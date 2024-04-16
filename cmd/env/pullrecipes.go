@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
+
 	"log/slog"
 	"net/http"
 	"net/url"
@@ -50,7 +50,7 @@ func fetchHTTP(url string) (string, error) {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
@@ -66,7 +66,7 @@ func readLocalFile(filePath string) (string, error) {
 	}
 	defer file.Close()
 
-	content, err := ioutil.ReadAll(file)
+	content, err := io.ReadAll(file)
 	if err != nil {
 		return "", err
 	}
@@ -160,7 +160,7 @@ var pullrecipesCmd = &cobra.Command{
 			if err != nil {
 				slog.Warn("error opening existing repo file: %v", err)
 			} else {
-				repodata, err := ioutil.ReadAll(repofile)
+				repodata, err := io.ReadAll(repofile)
 				if err != nil {
 					slog.Warn("error reading existing repo file: %v", err)
 				} else {
@@ -171,9 +171,6 @@ var pullrecipesCmd = &cobra.Command{
 					} else {
 						// check if they are from the same origin
 						if existingRepo.Origin == manifest.Origin {
-							// // if they are from the same origin, check if the incoming manifest has a newer version
-							// existingversion, _ = kinda.ParseVersion(existingRepo.)
-
 							// take each entry in the incoming manifest and compare it to the existing manifest
 							for _, entry := range manifest.Recipes {
 								// check if the entry is in the existing manifest

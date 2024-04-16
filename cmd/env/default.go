@@ -21,7 +21,7 @@ Different archectures and GPUs may require different base recipes.
 The base recipe is the root recipe that all other recipes will inherit from.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
-			slog.Error("error: no environment specified")
+			slog.Error("error: no default recipe specified")
 			os.Exit(1)
 		}
 		recipe := args[0]
