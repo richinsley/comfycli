@@ -40,4 +40,5 @@ func init() {
 	workflow.InitQueue(workflowCmd)
 	workflow.InitApi(workflowCmd)
 	workflow.InitExtract(workflowCmd)
+	workflow.InitInject(workflowCmd)
 }

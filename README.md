@@ -23,17 +23,20 @@ Install via Go:
 go install github.com/richinsley/comfycli
 ```
 ## Usage
-Comfycli is built on a structure of commands/subcommands.  The first time comfycli is run, it will set up a home directory:
+Comfycli is built on a structure of commands/subcommands.  The first time comfycli is run, it will set up a home directory (defaults to $HOME/.comfycli):
 ```bash
 ❯ ./comfycli --help
-Creating comfycli home folder: /Users/richardinsley/comfycli
-Creating models folder: /Users/richardinsley/comfycli/models
-Creating recipes folder: /Users/richardinsley/comfycli/environments/recipes
+Creating comfycli home folder: /Users/richardinsley/.comfycli
+Creating models folder: /Users/richardinsley/.comfycli/models
+Creating recipes folder: /Users/richardinsley/.comfycli/environments/recipes
+
+Creating recipes repos folder: /Users/richardinsley/.comfycli/environments/recipes/repos
+
 A feature-rich command-line application designed to streamline 
 the interaction with and scripting for ComfyUI for a shell.
 
-Version: 0.0.1
-Home Path: /Users/richardinsley/comfycli
+Version: 0.2.0
+Home Path: /Users/richardinsley/.comfycli
 
 Usage:
   comfycli [flags]
@@ -49,7 +52,6 @@ Available Commands:
 Flags:
       --api string         Simple API title (default "API")
       --apivalues string   Path to API values JSON or '-' for stdin
-  -g, --graphout string    Path to write workflow graph JSON
   -h, --help               help for comfycli
       --host string        Host address (default "127.0.0.1:8188")
   -j, --json               Report all output as json
@@ -62,7 +64,7 @@ Use "comfycli [command] --help" for more information about a command.
 
 ## Detailed Command Documentation
 For detailed information on each command and its subcommands, refer to the following documentation:
-- [Commands Overview](./docs/commands_overview.md) - Overview of main commands and their purposes.
+
 - [System Commands](./docs/system.md)
 - [Environment Commands](./docs/env.md)
 - [Workflow Commands](./docs/workflow.md)

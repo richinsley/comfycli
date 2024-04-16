@@ -53,12 +53,12 @@ comfycli workflow extract /path/to/workflow.png > workflow.json`,
 		}
 
 		// validate that the metadata is a Comfy workflow by checking for a version key
-		if _, ok := metadata["version"]; !ok {
+		if _, ok := metadata["workflow"]; !ok {
 			slog.Error("The provided PNG file does not contain Comfy workflow metadata")
 			os.Exit(1)
 		}
 
-		fmt.Println(metadata)
+		fmt.Println(metadata["workflow"])
 	},
 }
 
