@@ -18,7 +18,14 @@ var parseCmd = &cobra.Command{
 	Short: "Parse a workflow file and output the workflow json.",
 	Long: `Parse a workflow file and output the workflow json.
 This allows you to modify the parameters of a workflow and output the json
-to a file or the terminal. The first argument is the path to the workflow file.`,
+to a file or the terminal.  Parameters follow the delimiter "--" and are in the
+format "node:parameter"=value.  For example, to set the seed parameter of a KSampler node
+to 1234, you would use "KSampler:seed"=1234
+
+examples:
+# parse the default workflow, set the KSampler seed parameter to 1234 and output the workflow json to a file
+comfycli workflow parse defaultworkflow.json -- "KSampler:seed"=1234 > newworkflow.json
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		workflowPath := args[0]
 		params := args[1:] // All other args are considered parameters

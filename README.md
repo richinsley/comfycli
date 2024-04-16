@@ -4,6 +4,7 @@
 ## About
 Comfycli is a command-line interface designed to enhance the user experience of ComfyUI by providing powerful scripting and automation capabilities directly from the command line. Tailored for developers and users keen on stable diffusion models, comfycli simplifies the management of intricate AI workflows and supports a recipe-based system for creating and managing virtual environments. This feature allows users to define and replicate environments with precision, ensuring consistent setups across different machines or projects.
 Comfycli aims to bridge the gap between graphical interface usability and command-line efficiency, allowing for more precise control over the configurations and operations of ComfyUI environments.
+
 ## Installation
 
 Installation scripts are provided for quick and easy installation via the command line.
@@ -65,6 +66,7 @@ Use "comfycli [command] --help" for more information about a command.
 ## Detailed Command Documentation
 For detailed information on each command and its subcommands, refer to the following documentation:
 
+- [Command Overview](./docs/command_overview.md)
 - [System Commands](./docs/system.md)
 - [Environment Commands](./docs/env.md)
 - [Workflow Commands](./docs/workflow.md)
