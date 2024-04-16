@@ -22,7 +22,7 @@ var runcomfyCmd = &cobra.Command{
 
 	examples:
 	# run ComfyUI in the default environment
-	comfycli env runcomfy -- --help
+	comfycli env runcomfy
 
 	# run ComfyUI in the myenv environment.  Pass the --listen and --highvram arguments to the ComfyUI script
 	comfycli env runcomfy myenv -- --listen --highvram`,
@@ -87,8 +87,7 @@ var runcomfyCmd = &cobra.Command{
 func InitRunComfy(envCmd *cobra.Command) {
 	envCmd.AddCommand(runcomfyCmd)
 
-	// runcomfyCmd.PersistentFlags().String("env", "default", "Name of the environment to run ComfyUI")
-	runcomfyCmd.PersistentFlags().String("paramset", "default", "Named stored parameter sets to pass as arguments to ComfyUI")
+	// runcomfyCmd.PersistentFlags().String("paramset", "default", "Named stored parameter sets to pass as arguments to ComfyUI")
 }
 
 /*
