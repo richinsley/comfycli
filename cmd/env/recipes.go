@@ -608,7 +608,5 @@ func CheckForDefaultRecipe() {
 			fmt.Println("setting default recipe to", newdefault)
 			break
 		}
-
-		fmt.Println("setting default recipe to", newdefault)
 	}
 }

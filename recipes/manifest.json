@@ -18,7 +18,7 @@
                 "description": "IPAdapter v2 models for SD1.5 and SDXL"
             },
             {
-                "name": "SDXL_lighting",
+                "name": "SDXL_lightning",
                 "version": "1.0.0",
                 "description": "SDXL Lightning Lora"
             }

@@ -21,6 +21,7 @@ type ComfyOptions struct {
 	DataToStdout   bool
 	HomePath       string
 	RecipesPath    string
+	RecipesRepos   string
 	Yes            bool // Automatically answer yes on prompted questions
 	GetVersion     bool
 	OutputNodes    string

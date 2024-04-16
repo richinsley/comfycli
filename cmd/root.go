@@ -145,6 +145,17 @@ func checkComfycliHome(path string) error {
 		}
 	}
 
+	// create the recipes repos folder
+	recipesReposFolder := filepath.Join(recipesFolder, "repos")
+	if _, err := os.Stat(recipesReposFolder); os.IsNotExist(err) {
+		fmt.Printf("Creating recipes repos folder: %s\n\n", recipesReposFolder)
+		err := os.MkdirAll(recipesReposFolder, os.ModePerm)
+		if err != nil {
+			fmt.Printf("Failed to create recipes repos folder: %s\n", err)
+			return err
+		}
+	}
+
 	// populate the recipes folder with the default recipes
 	recipes, err := env.GetEmeddedRecipeNames()
 	if err == nil {
@@ -279,6 +290,7 @@ func init() {
 	// remove the config tile portion of the path
 	CLIOptions.HomePath = filepath.Dir(configpath)
 	CLIOptions.RecipesPath = filepath.Join(CLIOptions.HomePath, "environments", "recipes")
+	CLIOptions.RecipesRepos = filepath.Join(CLIOptions.RecipesPath, "repos")
 	CLIOptions.PrettyJson = true
 
 	// add cobra subcommands

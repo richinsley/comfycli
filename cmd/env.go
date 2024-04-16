@@ -45,4 +45,5 @@ func init() {
 	env.InitRMEnv(envCmd)
 	env.InitUpdate(envCmd)
 	env.InitDefault(envCmd)
+	env.InitPullRecipes(envCmd)
 }
