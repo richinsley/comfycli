@@ -14,9 +14,16 @@ import (
 
 // apiCmd represents the api command
 var apiCmd = &cobra.Command{
-	Use:   "api",
+	Use:   "api [workflow file]",
 	Short: "Output the API for the workflow in json format",
 	Long:  `Output the API for the workflow in json format`,
+	// validate that a png file is provided
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) == 0 {
+			return fmt.Errorf("requires a workflow file")
+		}
+		return nil
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		workflowPath := args[0]
 		params := args[1:] // All other args are considered parameters
@@ -59,5 +66,5 @@ var apiCmd = &cobra.Command{
 func InitApi(workflowCmd *cobra.Command) {
 	workflowCmd.AddCommand(apiCmd)
 
-	apiCmd.Flags().BoolVarP(&CLIOptions.APIValuesOnly, "value", "v", false, "Output as values only")
+	apiCmd.Flags().BoolVarP(&CLIOptions.APIValuesOnly, "values", "", false, "Output as values only")
 }
