@@ -90,3 +90,13 @@ As an example, we'll take the default ComfyUI workflow and expose these paramete
     "Width": 512
 }
 ```
+
+Now, for example, we can use "comfycli workflow api" to get the values of the Simple API, change the prompt to "a frog in a coffee cup", and pipe the new json into another instance of Comfycli.  In the second instance we specify to load the parameters for the Simple API with "--apivalues -" which tells comfycli to load the Simple API parameters from stdin.  We also specify "--inlineimages --nosavedata" so the resulting image is output to the terminal, and doesn't save to the local folder:
+```bash
+comfycli workflow api default_with_api.json --values Prompt="a frog in a coffee cup" | comfycli workflow queue default_with_api.json --inlineimages --nosavedata --apivalues -
+```
+
+
+
+https://github.com/richinsley/comfycli/assets/25912281/0a7c43d7-53e3-4af2-89a8-3fb7a5f4a99c
+
