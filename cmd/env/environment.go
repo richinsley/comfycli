@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"runtime"
 
 	"github.com/go-git/go-git/v5"
 	util "github.com/richinsley/comfycli/pkg"
@@ -264,11 +265,21 @@ func NewComfyEnvironmentFromRecipe(name string, recipe *EnvRecipe, recipePath st
 					fmt.Printf("Error creating symlink path: %v\n", err)
 					return nil, err
 				}
-				// create the symlink
-				err = os.Symlink(sharedpath, truepath)
-				if err != nil {
-					fmt.Printf("Error creating symlink: %v\n", err)
-					return nil, err
+
+				// if we are on windows, we need to use a hard link instead of a symlink
+				if runtime.GOOS == "windows" {
+					err = os.Link(sharedpath, truepath)
+					if err != nil {
+						fmt.Printf("Error creating hard link: %v\n", err)
+						return nil, err
+					}
+				} else {
+					// create the symlink
+					err = os.Symlink(sharedpath, truepath)
+					if err != nil {
+						fmt.Printf("Error creating symlink: %v\n", err)
+						return nil, err
+					}
 				}
 			}
 		}
