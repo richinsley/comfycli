@@ -9,7 +9,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"runtime"
 	"strings"
 
 	dagger "github.com/richinsley/comfycli/dagger"
@@ -20,65 +19,64 @@ import (
 
 func GetRecipeList(recipesPath string) ([]string, error) {
 	// get list of recipe files from the recipes folder
-	recipeFiles, err := util.ListFiles(recipesPath, true)
+	toplevelrecipes, err := util.ListFiles(recipesPath, true, false)
 	if err != nil {
 		return nil, err
 	}
 
-	recipes := make([]string, 0)
-	for _, f := range recipeFiles {
+	// get list of recipe files from the recipes repo folder
+	repopath := path.Join(recipesPath, "repos")
+	temprecipeFiles, err := util.ListFiles(repopath, false, false)
+	if err != nil {
+		return nil, err
+	}
+
+	// drop and file that doesn't have a .json extension or is manifest.json
+	recipeFiles := make([]string, 0)
+	for _, f := range temprecipeFiles {
 		_, filename := path.Split(f)
 		var extension = filepath.Ext(filename)
 		if extension != ".json" {
 			continue
 		}
 		var name = filename[0 : len(filename)-len(extension)]
-		if runtime.GOOS == "windows" {
-			// god I hate windows
-			s := strings.Split(name, "\\")
-			name = s[len(s)-1]
+		if name == "manifest" {
+			continue
 		}
-		recipes = append(recipes, path.Base(name))
+		recipeFiles = append(recipeFiles, f)
+	}
+	recipeFiles = append(recipeFiles, toplevelrecipes...)
+
+	recipes := make([]string, 0)
+
+	// convert the paths to cross-platform paths (god I hate windows)
+	repopath = filepath.ToSlash(repopath)
+	for i, f := range recipeFiles {
+		recipeFiles[i] = filepath.ToSlash(f)
+	}
+
+	for _, f := range recipeFiles {
+		// if the path is in the repo folder, we need to strip the repo path
+		if strings.HasPrefix(f, repopath) {
+			// trim the repo path and the leading slash and the file extension
+			var name = f[len(repopath)+1 : len(f)-5]
+			recipes = append(recipes, name)
+		} else {
+			_, filename := path.Split(f)
+			var extension = filepath.Ext(filename)
+			if extension != ".json" {
+				continue
+			}
+			var name = filename[0 : len(filename)-len(extension)]
+			// if runtime.GOOS == "windows" {
+			// 	// god I hate windows
+			// 	s := strings.Split(name, "\\")
+			// 	name = s[len(s)-1]
+			// }
+			recipes = append(recipes, path.Base(name))
+		}
 	}
 	return recipes, nil
-}
-
-// recipesCmd
-var recipesCmd = &cobra.Command{
-	Use:   "recipes",
-	Short: "List available environment recipes",
-	Long:  `List available environment recipes`,
-	Run: func(cmd *cobra.Command, args []string) {
-		// get list of recipes from the home folder
-		if CLIOptions.RecipesPath == "" {
-			fmt.Println("recipes path not set")
-			return
-		}
-
-		// get list of recipe files from the recipes folder
-		recipes, err := GetRecipeList(CLIOptions.RecipesPath)
-		if err != nil {
-			fmt.Println("error getting recipe list")
-			return
-		}
-
-		if CLIOptions.Json {
-			// output as json
-			output := make([]string, 0)
-			output = append(output, recipes...)
-			j, _ := util.ToJson(output, CLIOptions.PrettyJson)
-			fmt.Println(j)
-			return
-		}
-
-		// remove the path and extension from the recipe names
-		for _, r := range recipes {
-			fmt.Println(r)
-		}
-	},
-	PreRun: func(cmd *cobra.Command, args []string) {
-		CheckForDefaultRecipe()
-	},
 }
 
 func RecipeFromPath(path string) (*EnvRecipe, error) {
@@ -103,13 +101,14 @@ func RecipePathFromName(name string) (string, error) {
 	}
 	retv := path.Join(CLIOptions.RecipesPath, name+".json")
 	if _, err := os.Stat(retv); err != nil {
-		return "", fmt.Errorf("recipe not found")
+		// check the repo folder
+		repopath := path.Join(CLIOptions.RecipesPath, "repos")
+		retv = path.Join(repopath, name+".json")
+		if _, err := os.Stat(retv); err != nil {
+			return "", fmt.Errorf("recipe not found")
+		}
 	}
 	return retv, nil
-}
-
-func InitRecipes(envCmd *cobra.Command) {
-	envCmd.AddCommand(recipesCmd)
 }
 
 // recipePathsFromNames is a recursive function that gets the full path to all recipes
@@ -487,7 +486,7 @@ func GetAllDefaultRecipes() (map[string]string, error) {
 		return nil, fmt.Errorf("recipes path not set")
 	}
 
-	recipeFiles, err := util.ListFiles(CLIOptions.RecipesPath, true)
+	recipeFiles, err := util.ListFiles(CLIOptions.RecipesPath, true, false)
 	if err != nil {
 		return nil, err
 	}
@@ -576,4 +575,53 @@ func CheckForDefaultRecipe() {
 			break
 		}
 	}
+}
+
+// recipesCmd
+var recipesCmd = &cobra.Command{
+	Use:   "recipes",
+	Short: "List available environment recipes",
+	Long:  `List available environment recipes`,
+	Run: func(cmd *cobra.Command, args []string) {
+		// get list of recipes from the home folder
+		if CLIOptions.RecipesPath == "" {
+			fmt.Println("recipes path not set")
+			return
+		}
+
+		// get list of recipe files from the recipes folder
+		recipes, err := GetRecipeList(CLIOptions.RecipesPath)
+		if err != nil {
+			fmt.Println("error getting recipe list")
+			return
+		}
+
+		if CLIOptions.Json {
+			// output as json
+			output := make([]string, 0)
+			output = append(output, recipes...)
+			j, _ := util.ToJson(output, CLIOptions.PrettyJson)
+			fmt.Println(j)
+			return
+		}
+
+		if CLIOptions.Json {
+			// output as json
+			output := make([]string, 0)
+			output = append(output, recipes...)
+			j, _ := util.ToJson(output, CLIOptions.PrettyJson)
+			fmt.Println(j)
+		} else {
+			for _, r := range recipes {
+				fmt.Println(r)
+			}
+		}
+	},
+	PreRun: func(cmd *cobra.Command, args []string) {
+		CheckForDefaultRecipe()
+	},
+}
+
+func InitRecipes(envCmd *cobra.Command) {
+	envCmd.AddCommand(recipesCmd)
 }

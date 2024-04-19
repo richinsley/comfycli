@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/go-git/go-git/v5"
 	sixel "github.com/mattn/go-sixel"
 	"github.com/richinsley/comfy2go/client"
 	"github.com/richinsley/comfy2go/graphapi"
@@ -332,7 +333,38 @@ func ScanJsonFromReader(r io.Reader) (interface{}, error) {
 	return jobj, nil
 }
 
-func ListFiles(path string, topOnly bool) ([]string, error) {
+// func ListFiles(path string, topOnly bool) ([]string, error) {
+// 	var files []string
+// 	if topOnly {
+// 		// Read only the top level of the directory.
+// 		entries, err := os.ReadDir(path)
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 		for _, entry := range entries {
+// 			if !entry.IsDir() {
+// 				files = append(files, filepath.Join(path, entry.Name()))
+// 			}
+// 		}
+// 	} else {
+// 		// Walk through the directory recursively.
+// 		err := filepath.Walk(path, func(path string, info fs.FileInfo, err error) error {
+// 			if err != nil {
+// 				return err
+// 			}
+// 			if !info.IsDir() {
+// 				files = append(files, path)
+// 			}
+// 			return nil
+// 		})
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 	}
+// 	return files, nil
+// }
+
+func ListFiles(path string, topOnly bool, relative bool) ([]string, error) {
 	var files []string
 	if topOnly {
 		// Read only the top level of the directory.
@@ -341,18 +373,38 @@ func ListFiles(path string, topOnly bool) ([]string, error) {
 			return nil, err
 		}
 		for _, entry := range entries {
-			if !entry.IsDir() {
-				files = append(files, filepath.Join(path, entry.Name()))
+			if !entry.IsDir() && !strings.HasPrefix(entry.Name(), ".") {
+				// Ignore hidden files
+				if relative {
+					files = append(files, entry.Name())
+				} else {
+					files = append(files, filepath.Join(path, entry.Name()))
+				}
 			}
 		}
 	} else {
 		// Walk through the directory recursively.
-		err := filepath.Walk(path, func(path string, info fs.FileInfo, err error) error {
+		err := filepath.Walk(path, func(currentPath string, info fs.FileInfo, err error) error {
 			if err != nil {
 				return err
 			}
+			// Skip hidden files and directories
+			if strings.HasPrefix(filepath.Base(currentPath), ".") {
+				if info.IsDir() {
+					return filepath.SkipDir // Skip the entire directory if it is hidden
+				}
+				return nil // Skip hidden files
+			}
 			if !info.IsDir() {
-				files = append(files, path)
+				if relative {
+					relPath, err := filepath.Rel(path, currentPath)
+					if err != nil {
+						return err
+					}
+					files = append(files, relPath)
+				} else {
+					files = append(files, currentPath)
+				}
 			}
 			return nil
 		})
@@ -557,4 +609,23 @@ func CopyFile(src, dst string) (int64, error) {
 	defer destination.Close()
 	nBytes, err := io.Copy(destination, source)
 	return nBytes, err
+}
+
+func CloneRepo(repoURL, repoPath string, showoutput bool) (*git.Repository, error) {
+	cloneoptions := &git.CloneOptions{
+		URL: repoURL,
+	}
+
+	if showoutput {
+		// output clone status to stdout
+		cloneoptions.Progress = os.Stdout
+	}
+
+	repo, err := git.PlainClone(repoPath, false, cloneoptions)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return repo, nil
 }

@@ -15,17 +15,17 @@ The `env` command group in `comfycli` is designed to manage virtual Python envir
 ***
 ## pullrecipes
 
-**Description:** ***pullrecipes*** takes a URL to a manifest for a comfycli recipe repository.  Pulling a manifest into comfycli will import the recipes described in the repo and make them available for creating new environments.
+**Description:** ***pullrecipes*** takes a git URL to a recipe collection git repository.  Pulling a repository into comfycli will import the recipes described in the repo and make them available for creating new environments.
 
 **Usage:**
 ```bash
-comfycli env pullrecipes [repo manifest URL] [flags]
+comfycli env pullrecipes [recipes git repo] [flags]
 ```
 
 **Examples:**
-Pull the [primary recipe repository](https://github.com/richinsley/comfycli/tree/main/recipes):
+Pull the [comfycli-sample-recipes](https://github.com/richinsley/comfycli-sample-recipes.git) repository:
 ```bash
-:~$ comfycli env pullrecipes https://raw.githubusercontent.com/richinsley/comfycli/main/recipes/manifest.json
+:~$ comfycli env pullrecipes https://github.com/richinsley/comfycli-sample-recipes.git
 ```
 
 ## recipes
@@ -40,15 +40,16 @@ comfycli comfycli env recipes [flags]
 **Examples:**
 ```bash
 :~$ comfycli env recipes
+comfycli-sample-recipes/SDXL_lightning
+comfycli-sample-recipes/controlnet_SD15
+comfycli-sample-recipes/controlnet_SDXL
+comfycli-sample-recipes/ipadapter_v2
 SD15
 SDXL
 SDXL_lightning
-controlnet_SD15
-controlnet_SDXL
 default
 default_pytorch_nightly
 default_pytorch_stable
-ipadapter_v2
 ```
 
 ## setdefault
