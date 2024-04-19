@@ -21,20 +21,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type RecipeManifestEntry struct {
-	Name    string `json:"name"`
-	Version string `json:"version"`
-	// Description is optional
-	Description string `json:"description,omitempty"`
-}
-
-type RecipeRepoManifest struct {
-	RepoName      string                `json:"name"`
-	Recipes       []RecipeManifestEntry `json:"recipes"`
-	Origin        string                `json:"origin,omitempty"`
-	InheritsRepos []string              `json:"inheritsrepos,omitempty"`
-}
-
 // fetchData decides whether to fetch data from HTTP/HTTPS or from a local file
 func fetchData(u string) (string, error) {
 	if strings.HasPrefix(u, "http://") || strings.HasPrefix(u, "https://") {

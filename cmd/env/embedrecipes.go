@@ -103,6 +103,7 @@ type CustomNode struct {
 //		"filename": "v1-5-pruned-emaonly.ckpt",
 //		"url": "https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly.ckpt"
 //	}
+
 type Models struct {
 	Name        string `json:"name"`
 	Type        string `json:"type"`
@@ -137,6 +138,28 @@ type EnvRecipe struct {
 	Models []Models `json:"models,omitempty"`
 	// modes
 	ParamSets map[string][]string `json:"paramsets,omitempty"`
+}
+
+type RecipeManifestEntry struct {
+	// name of the recipe
+	Name string `json:"name"`
+	// version of the recipe
+	Version string `json:"version"`
+	// description of the recipe
+	Description string `json:"description,omitempty"`
+}
+
+type RecipeRepoManifest struct {
+	// name of the repo (should be the same as the git repo name)
+	RepoName string `json:"name"`
+	// list of recipes in the repo
+	Recipes []RecipeManifestEntry `json:"recipes"`
+	// the origin of the repo (git url/filepath)
+	Origin string `json:"origin,omitempty"`
+	// list of repos that this repo's recipes dectly inherit from.
+	// Do not include the repo itself, or repos that are not directly inherited
+	// from the recipes in this repo.
+	InheritsRepos []string `json:"inheritsrepos,omitempty"`
 }
 
 //go:embed recipes/darwin/* recipes/windows/* recipes/linux/* recipes/all/*
