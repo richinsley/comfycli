@@ -11,8 +11,8 @@ import (
 	"github.com/schollz/progressbar/v3"
 )
 
-func ClientWithWorkflow(options *ComfyOptions, workflow string, parameters []CLIParameter, callbacks *client.ComfyClientCallbacks) (*client.ComfyClient, *graphapi.Graph, *graphapi.SimpleAPI, bool, *[]string, error) {
-	c, graph, simple_api, missing, err := GetFullWorkflow(options, workflow, callbacks)
+func ClientWithWorkflow(client_index int, options *ComfyOptions, workflow string, parameters []CLIParameter, callbacks *client.ComfyClientCallbacks) (*client.ComfyClient, *graphapi.Graph, *graphapi.SimpleAPI, bool, *[]string, error) {
+	c, graph, simple_api, missing, err := GetFullWorkflow(client_index, options, workflow, callbacks)
 	if missing != nil {
 		return nil, nil, nil, false, missing, err
 	}
@@ -45,7 +45,7 @@ func ProcessQueue(options *ComfyOptions, workflow string, parameters []CLIParame
 		},
 	}
 
-	c, graph, api, hasPipeLoop, missing, err := ClientWithWorkflow(options, workflow, parameters, callbacks)
+	c, graph, api, hasPipeLoop, missing, err := ClientWithWorkflow(0, options, workflow, parameters, callbacks)
 	if err != nil {
 		slog.Error("Failed to create comfyui client", err)
 		os.Exit(1)

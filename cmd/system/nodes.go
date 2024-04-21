@@ -53,7 +53,7 @@ var nodesCmd = &cobra.Command{
 	Long:  `List available nodes in a ComfyUI instance`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// create a client
-		c := client.NewComfyClient(CLIOptions.Host, CLIOptions.Port, nil)
+		c := client.NewComfyClient(CLIOptions.Host[0], CLIOptions.Port[0], nil)
 
 		displayAvailableNodes(c)
 	},

@@ -9,8 +9,8 @@ import (
 )
 
 type ComfyOptions struct {
-	Host           string
-	Port           int
+	Host           []string
+	Port           []int
 	Json           bool
 	PrettyJson     bool
 	API            string
@@ -35,11 +35,12 @@ type ComfyOptions struct {
 func (o *ComfyOptions) ApplyEnvironment() {
 	// Check if viper has a value for each setting, if so, use it to set the struct's fields
 	if viper.IsSet("host") {
-		o.Host = viper.GetString("host")
+		o.Host = viper.GetStringSlice("host")
+		// o.Host = viper.GetString("host")
 	}
-	if viper.IsSet("port") {
-		o.Port = viper.GetInt("port")
-	}
+	// if viper.IsSet("port") {
+	// 	o.Port = viper.GetInt("port")
+	// }
 	if viper.IsSet("pretty") {
 		o.PrettyJson = viper.GetBool("pretty")
 	}

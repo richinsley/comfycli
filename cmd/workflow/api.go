@@ -29,7 +29,7 @@ var apiCmd = &cobra.Command{
 		params := args[1:] // All other args are considered parameters
 		parameters := util.ParseParameters(params)
 
-		_, graph, simple_api, missing, err := util.GetFullWorkflow(CLIOptions, workflowPath, nil)
+		_, graph, simple_api, missing, err := util.GetFullWorkflow(0, CLIOptions, workflowPath, nil)
 		if missing != nil {
 			slog.Error("failed to get workflow: missing nodes", missing)
 			os.Exit(1)

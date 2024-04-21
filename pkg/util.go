@@ -129,9 +129,9 @@ func OutputInlineToStd(data *[]byte) {
 	outputInlineImageToStd(data)
 }
 
-func GetFullWorkflow(options *ComfyOptions, workflow string, cb *client.ComfyClientCallbacks) (*client.ComfyClient, *graphapi.Graph, *graphapi.SimpleAPI, *[]string, error) {
-	clientaddr := options.Host
-	clientport := options.Port
+func GetFullWorkflow(client_index int, options *ComfyOptions, workflow string, cb *client.ComfyClientCallbacks) (*client.ComfyClient, *graphapi.Graph, *graphapi.SimpleAPI, *[]string, error) {
+	clientaddr := options.Host[client_index]
+	clientport := options.Port[client_index]
 
 	// create a client if there is not one in options already
 	var c *client.ComfyClient = nil

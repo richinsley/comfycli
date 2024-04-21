@@ -20,7 +20,7 @@ var infoCmd = &cobra.Command{
 	Long:  `Retrieve system information from a ComfyUI instance`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// create a client
-		c := client.NewComfyClient(CLIOptions.Host, CLIOptions.Port, nil)
+		c := client.NewComfyClient(CLIOptions.Host[0], CLIOptions.Port[0], nil)
 
 		// the client needs to be in an initialized state before usage
 		if !c.IsInitialized() {

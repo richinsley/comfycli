@@ -24,7 +24,7 @@ var topCmd = &cobra.Command{
 	Long:  `Provides a dynamic real-time view of system information from a ComfyUI instance`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// create a client
-		c := client.NewComfyClient(CLIOptions.Host, CLIOptions.Port, nil)
+		c := client.NewComfyClient(CLIOptions.Host[0], CLIOptions.Port[0], nil)
 
 		// continuously update the top information at the specified interval
 		for {

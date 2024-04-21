@@ -29,22 +29,27 @@ var ComfycliVersion kinda.Version
 func PreprocessOptions(cmd *cobra.Command, args []string) {
 	// parse host and port from the command line
 	// if the host is in the form of host:port, split it
-	host := viper.GetString("host")
-	if host != "" {
-		hostParts := strings.Split(host, ":")
-		if len(hostParts) == 2 {
-			CLIOptions.Host = hostParts[0]
-			port, err := strconv.Atoi(hostParts[1])
-			if err != nil {
-				// handle the error if the conversion fails
-				slog.Error("Failed to convert host port to integer:", "error", err)
-				os.Exit(1)
+
+	hosts := viper.GetStringSlice("host")
+	CLIOptions.Host = make([]string, len(hosts))
+	CLIOptions.Port = make([]int, len(hosts))
+	for i, host := range hosts {
+		if host != "" {
+			hostParts := strings.Split(host, ":")
+			if len(hostParts) == 2 {
+				CLIOptions.Host[i] = hostParts[0]
+				port, err := strconv.Atoi(hostParts[1])
+				if err != nil {
+					// handle the error if the conversion fails
+					slog.Error("Failed to convert host port to integer:", "error", err)
+					os.Exit(1)
+				} else {
+					CLIOptions.Port[i] = port
+				}
 			} else {
-				CLIOptions.Port = port
+				CLIOptions.Host[i] = host
+				CLIOptions.Port[i] = 8188
 			}
-		} else {
-			CLIOptions.Host = host
-			CLIOptions.Port = 8188
 		}
 	}
 }
@@ -294,7 +299,8 @@ func init() {
 	CLIOptions.PrettyJson = true
 
 	// add cobra subcommands
-	rootCmd.PersistentFlags().StringVarP(&CLIOptions.Host, "host", "", "127.0.0.1:8188", "Host address")
+	rootCmd.PersistentFlags().StringSliceVarP(&CLIOptions.Host, "host", "", []string{"127.0.0.1:8188"}, "Host address")
+	// rootCmd.PersistentFlags().StringVarP(&CLIOptions.Host, "host", "", "127.0.0.1:8188", "Host address")
 	rootCmd.PersistentFlags().StringVarP(&CLIOptions.API, "api", "", "API", "Simple API title")
 	rootCmd.PersistentFlags().StringVarP(&CLIOptions.APIValues, "apivalues", "", "", "Path to API values JSON or '-' for stdin")
 	rootCmd.PersistentFlags().BoolVarP(&CLIOptions.Json, "json", "j", false, "Report all output as json")
