@@ -129,7 +129,14 @@ func OutputInlineToStd(data *[]byte) {
 	outputInlineImageToStd(data)
 }
 
-func GetFullWorkflow(client_index int, options *ComfyOptions, workflow string, cb *client.ComfyClientCallbacks) (*client.ComfyClient, *graphapi.Graph, *graphapi.SimpleAPI, *[]string, error) {
+type Workflow struct {
+	ClientIndex int
+	Client      *client.ComfyClient
+	Graph       *graphapi.Graph
+	SimpleAPI   *graphapi.SimpleAPI
+}
+
+func GetFullWorkflow(client_index int, options *ComfyOptions, workflow string, cb *client.ComfyClientCallbacks) (*Workflow, *[]string, error) {
 	clientaddr := options.Host[client_index]
 	clientport := options.Port[client_index]
 
@@ -148,12 +155,9 @@ func GetFullWorkflow(client_index int, options *ComfyOptions, workflow string, c
 	if !c.IsInitialized() {
 		err := c.Init()
 		if err != nil {
-			return nil, nil, nil, nil, err
+			return nil, nil, err
 		}
 	}
-
-	// parse the parameters
-	// parsedParams := ParseParameters(parameters)
 
 	// load the workflow
 	var g *graphapi.Graph = nil
@@ -167,13 +171,18 @@ func GetFullWorkflow(client_index int, options *ComfyOptions, workflow string, c
 	}
 
 	if err != nil {
-		return nil, nil, nil, missing, err
+		return nil, missing, err
 	}
 
 	simple_api := g.GetSimpleAPI(&options.API)
 
 	// return the client and the graph
-	return c, g, simple_api, nil, nil
+	return &Workflow{
+		ClientIndex: client_index,
+		Client:      c,
+		Graph:       g,
+		SimpleAPI:   simple_api,
+	}, missing, nil
 }
 
 func setPropertValue(client *client.ComfyClient, options *ComfyOptions, prop graphapi.Property, value interface{}) (bool, error) {

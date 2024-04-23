@@ -29,7 +29,7 @@ var apiCmd = &cobra.Command{
 		params := args[1:] // All other args are considered parameters
 		parameters := util.ParseParameters(params)
 
-		_, graph, simple_api, missing, err := util.GetFullWorkflow(0, CLIOptions, workflowPath, nil)
+		workflow, missing, err := util.GetFullWorkflow(0, CLIOptions, workflowPath, nil)
 		if missing != nil {
 			slog.Error("failed to get workflow: missing nodes", missing)
 			os.Exit(1)
@@ -42,14 +42,14 @@ var apiCmd = &cobra.Command{
 
 		if CLIOptions.APIValuesOnly {
 			// create a slice of the API parameter values and serialize to json
-			_, err = util.ApplyParameters(nil, CLIOptions, graph, simple_api, parameters)
+			_, err = util.ApplyParameters(nil, CLIOptions, workflow.Graph, workflow.SimpleAPI, parameters)
 			if err != nil {
 				slog.Error("failed to apply parameter", err)
 				os.Exit(1)
 			}
 
 			values := make(map[string]interface{})
-			for k, v := range simple_api.Properties {
+			for k, v := range workflow.SimpleAPI.Properties {
 				values[k] = v.GetValue()
 			}
 
@@ -57,7 +57,7 @@ var apiCmd = &cobra.Command{
 			fmt.Println(j)
 		} else {
 			// serialize the entire API to json
-			j, _ := util.ToJson(simple_api.Properties, CLIOptions.PrettyJson)
+			j, _ := util.ToJson(workflow.SimpleAPI.Properties, CLIOptions.PrettyJson)
 			fmt.Println(j)
 		}
 	},

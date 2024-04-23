@@ -31,7 +31,7 @@ comfycli workflow parse defaultworkflow.json -- "KSampler:seed"=1234 > newworkfl
 		params := args[1:] // All other args are considered parameters
 		parameters := util.ParseParameters(params)
 
-		_, graph, _, _, missing, err := util.ClientWithWorkflow(0, CLIOptions, workflowPath, parameters, nil)
+		workflow, _, missing, err := util.ClientWithWorkflow(0, CLIOptions, workflowPath, parameters, nil)
 		if missing != nil {
 			slog.Error("failed to get workflow: missing nodes", "missing", fmt.Sprintf("%v", missing))
 			os.Exit(1)
@@ -42,7 +42,7 @@ comfycli workflow parse defaultworkflow.json -- "KSampler:seed"=1234 > newworkfl
 			os.Exit(1)
 		}
 
-		j, _ := util.ToJson(graph, CLIOptions.PrettyJson)
+		j, _ := util.ToJson(workflow.Graph, CLIOptions.PrettyJson)
 		if err != nil {
 			slog.Error("failed to convert graph to json", err)
 			os.Exit(1)

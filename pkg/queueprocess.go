@@ -7,28 +7,28 @@ import (
 	"strings"
 
 	"github.com/richinsley/comfy2go/client"
-	"github.com/richinsley/comfy2go/graphapi"
+	// "github.com/richinsley/comfy2go/graphapi"
 	"github.com/schollz/progressbar/v3"
 )
 
-func ClientWithWorkflow(client_index int, options *ComfyOptions, workflow string, parameters []CLIParameter, callbacks *client.ComfyClientCallbacks) (*client.ComfyClient, *graphapi.Graph, *graphapi.SimpleAPI, bool, *[]string, error) {
-	c, graph, simple_api, missing, err := GetFullWorkflow(client_index, options, workflow, callbacks)
+func ClientWithWorkflow(client_index int, options *ComfyOptions, workflowpath string, parameters []CLIParameter, callbacks *client.ComfyClientCallbacks) (*Workflow, bool, *[]string, error) {
+	workflow, missing, err := GetFullWorkflow(client_index, options, workflowpath, callbacks)
 	if missing != nil {
-		return nil, nil, nil, false, missing, err
+		return nil, false, missing, err
 	}
 	if err != nil {
-		return nil, nil, nil, false, missing, err
+		return nil, false, missing, err
 	}
 
-	hasPipeLoop, err := ApplyParameters(c, options, graph, simple_api, parameters)
+	hasPipeLoop, err := ApplyParameters(workflow.Client, options, workflow.Graph, workflow.SimpleAPI, parameters)
 	if err != nil {
-		return nil, nil, nil, false, nil, err
+		return nil, false, nil, err
 	}
 
-	return c, graph, simple_api, hasPipeLoop, nil, nil
+	return workflow, hasPipeLoop, nil, nil
 }
 
-func ProcessQueue(options *ComfyOptions, workflow string, parameters []CLIParameter) bool {
+func ProcessQueue(options *ComfyOptions, workflowpath string, parameters []CLIParameter) bool {
 	// callbacks can be used respond to QueuedItem updates, or client status changes
 	callbacks := &client.ComfyClientCallbacks{
 		ClientQueueCountChanged: func(c *client.ComfyClient, queuecount int) {
@@ -45,7 +45,7 @@ func ProcessQueue(options *ComfyOptions, workflow string, parameters []CLIParame
 		},
 	}
 
-	c, graph, api, hasPipeLoop, missing, err := ClientWithWorkflow(0, options, workflow, parameters, callbacks)
+	workflow, hasPipeLoop, missing, err := ClientWithWorkflow(0, options, workflowpath, parameters, callbacks)
 	if err != nil {
 		slog.Error("Failed to create comfyui client", err)
 		os.Exit(1)
@@ -53,8 +53,8 @@ func ProcessQueue(options *ComfyOptions, workflow string, parameters []CLIParame
 
 	// get any output nodes that were specified in the api
 	var outputnodes map[string]bool = make(map[string]bool)
-	if api != nil && api.OutputNodes != nil {
-		for _, n := range api.OutputNodes {
+	if workflow.SimpleAPI != nil && workflow.SimpleAPI.OutputNodes != nil {
+		for _, n := range workflow.SimpleAPI.OutputNodes {
 			outputnodes[n.Title] = true
 		}
 	}
@@ -68,7 +68,7 @@ func ProcessQueue(options *ComfyOptions, workflow string, parameters []CLIParame
 	}
 
 	outputnodeIDs := make(map[int]bool)
-	for _, n := range graph.Nodes {
+	for _, n := range workflow.Graph.Nodes {
 		if _, ok := outputnodes[n.Title]; ok {
 			outputnodeIDs[n.ID] = true
 		}
@@ -83,7 +83,7 @@ func ProcessQueue(options *ComfyOptions, workflow string, parameters []CLIParame
 		os.Exit(1)
 	}
 
-	item, err := c.QueuePrompt(graph)
+	item, err := workflow.Client.QueuePrompt(workflow.Graph)
 	if err != nil {
 		slog.Error("Failed to queue prompt", err)
 		os.Exit(1)
@@ -137,7 +137,7 @@ func ProcessQueue(options *ComfyOptions, workflow string, parameters []CLIParame
 
 				if k == "images" || k == "gifs" {
 					for _, output := range v {
-						img_data, err := c.GetImage(output)
+						img_data, err := workflow.Client.GetImage(output)
 						if err != nil {
 							slog.Error("Failed to get image", err)
 							os.Exit(1)
