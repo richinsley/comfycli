@@ -163,6 +163,9 @@ func NewComfyEnvironmentFromRecipe(name string, recipe *EnvRecipe, recipePath st
 	// install custom nodes if specified
 	if recipe.CustomNodes != nil {
 		for _, v := range recipe.CustomNodes {
+			if feedback != kinda.ShowNothing {
+				fmt.Printf("Installing Custom Node: %v\n", v.Name)
+			}
 			repo, repoPath, err := kinda.NewGitRepo(v.GitURL, filepath.Join(comfyFolder, "custom_nodes"), v.Branch)
 			if err != nil {
 				fmt.Printf("Error cloning custom node: %v\n", err)

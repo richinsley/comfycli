@@ -4,6 +4,9 @@ Copyright © 2024 Rich Insley <richinsley@gmail.com>
 package workflow
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/richinsley/comfycli/pkg"
 	"github.com/spf13/cobra"
 )
@@ -35,7 +38,35 @@ comfycli workflow queue --inlineimages --nosavedata myworkflow.json -- KSampler:
 		params := args[1:] // All other args are considered parameters
 		parameters := pkg.ParseParameters(params)
 
-		// Process the queue. If there was a pipe loop, process it again
+		hasloop, err := pkg.TestParametersHasPipeLoop(CLIOptions, parameters)
+		if err != nil {
+			fmt.Println(err.Error())
+			os.Exit(1)
+		}
+
+		if hasloop && len(CLIOptions.Host) > 1 {
+			/*
+				// get the workflows for each host that can process the workflow
+				// pass nil for the parameters to just get the clients that can process the workflow
+				workflows := pkg.GetWorkflows(CLIOptions, workflowPath, nil)
+				if len(workflows) == 0 {
+					fmt.Println("No client could be created to process the workflow")
+					os.Exit(1)
+				}
+				if len(workflows) == 0 {
+					fmt.Println("No client could be created to process the workflow")
+					os.Exit(1)
+				} else if len(workflows) > 1 {
+					fmt.Printf("Workflows: %v\n", workflows)
+
+					os.Exit(0)
+				}
+			*/
+			workers := pkg.GetWorkflowsAsync(CLIOptions, workflowPath, parameters)
+			batchQueueProcess(workers, parameters)
+		}
+
+		// Process the queue on a single client. If there was a pipe loop, process it again
 		for {
 			hasPipeLoop := pkg.ProcessQueue(CLIOptions, workflowPath, parameters)
 			if !hasPipeLoop {
@@ -43,6 +74,16 @@ comfycli workflow queue --inlineimages --nosavedata myworkflow.json -- KSampler:
 			}
 		}
 	},
+}
+
+func batchQueueProcess(workers chan *pkg.WorkflowQueueProcessor, parameters []pkg.CLIParameter) {
+	for {
+		w := <-workers
+		if w == nil {
+			continue
+		}
+		go pkg.ProcessWorkerQueue(w, CLIOptions, parameters, workers)
+	}
 }
 
 func InitQueue(workflowCmd *cobra.Command) {

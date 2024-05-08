@@ -116,17 +116,41 @@ func outputSixelImageToStd(data *[]byte) {
 	sixel.NewEncoder(os.Stdout).Encode(img)
 }
 
-func outputInlineImageToStd(data *[]byte) {
-	// encode the image to base64
-	encoded := base64.StdEncoding.EncodeToString(*data)
-	// print the encoded string
-	os.Stdout.WriteString("\033]1337;File=inline=1:")
-	os.Stdout.WriteString(encoded)
-	os.Stdout.WriteString("\a\n")
+// func outputInlineImageToStd(data *[]byte, name string, width int, height int) {
+// 	// encode the image to base64
+// 	encoded := base64.StdEncoding.EncodeToString(*data)
+// 	// print the encoded string
+// 	os.Stdout.WriteString("\033]1337;File=inline=1:")
+// 	os.Stdout.WriteString(encoded)
+// 	os.Stdout.WriteString("\a\n")
+// }
+
+func outputInlineImageToStd(data *[]byte, name string, width int, height int) string {
+	encoded_data := base64.StdEncoding.EncodeToString(*data)
+	encoded_name := base64.StdEncoding.EncodeToString([]byte(name))
+	sizestr := fmt.Sprintf("size=%d;", len(*data))
+	namestr := fmt.Sprintf("name=%s;", encoded_name)
+	dimstr := ""
+	if width > 0 && height > 0 {
+		dimstr = fmt.Sprintf("width=%dpx;height=%dpx;", width, height)
+	}
+	retv := fmt.Sprintf("\033]1337;File=inline=1;%s%s%spreserveAspectRatio=1:%s\a\n", sizestr, namestr, dimstr, encoded_data)
+
+	return retv
 }
 
-func OutputInlineToStd(data *[]byte) {
-	outputInlineImageToStd(data)
+// func outputInlineImageToStd(data *[]byte, name string, width int, height int) string {
+// 	encoded_data := base64.StdEncoding.EncodeToString(*data)
+// 	encoded_name := base64.StdEncoding.EncodeToString([]byte(name))
+// 	retv := fmt.Sprintf("\033]1337;File=inline=1;size=%d;name=%s;width=%dpx;height=%dpx;preserveAspectRatio=0:%s\a\n", len(*data), encoded_name, width, height, encoded_data)
+// 	return retv
+// }
+
+// "\x1b]1337;File=inline=1;size=828488;name=Q29tZnlVSV90ZW1wX3Bvc2N4XzAwMDExXy5wbmc=;iVBORw0
+// "\x1b]1337;File=inline=1;size=834660;name=Q29tZnlVSV90ZW1wX3Bvc2N4XzAwMDE2Xy5wbmc=;preserveAspectRatio=1:iVBORw0KGgoAAAANSU
+// "\x1b]1337;File=inline=1;size=834660;name=Q29tZnlVSV90ZW1wX3Bvc2N4XzAwMDE4Xy5wbmc=;preserveAspectRatio=1:iVBORw0KGgoAAAANSU
+func OutputInlineToStd(data *[]byte, name string, width int, height int) {
+	os.Stdout.WriteString(outputInlineImageToStd(data, name, width, height))
 }
 
 type Workflow struct {
@@ -140,15 +164,19 @@ func GetFullWorkflow(client_index int, options *ComfyOptions, workflow string, c
 	clientaddr := options.Host[client_index]
 	clientport := options.Port[client_index]
 
+	if options.Clients == nil {
+		options.Clients = make([]*client.ComfyClient, len(options.Host))
+	}
+
 	// create a client if there is not one in options already
 	var c *client.ComfyClient = nil
-	if options.Client != nil {
+	if options.Clients[client_index] != nil {
 		// resuse the client in options
-		c = options.Client
+		c = options.Clients[client_index]
 	} else {
 		// create a new client
 		c = client.NewComfyClient(clientaddr, clientport, cb)
-		options.Client = c
+		options.Clients[client_index] = c
 	}
 
 	// the client needs to be in an initialized state before usage
@@ -221,6 +249,41 @@ func setPropertValue(client *client.ComfyClient, options *ComfyOptions, prop gra
 	return readFromPipe, err
 }
 
+func TestParametersHasPipeLoop(options *ComfyOptions, parameters []CLIParameter) (bool, error) {
+	retv := false
+	pipedparamcount := 0
+	for _, param := range parameters {
+		if param.Value == "-" {
+			pipedparamcount += 1
+		}
+	}
+	if pipedparamcount > 1 {
+		return true, fmt.Errorf("only one parameter can read from stdin, use SimpleAPI for more")
+	} else if pipedparamcount == 1 {
+		retv = true
+	}
+
+	if options.APIValues != "" {
+		if retv {
+			return true, fmt.Errorf("APIValues and parameters reading from stdin cannot be used together")
+		}
+		if options.APIValues != "-" {
+			// set the stdin reader to the file
+			f, err := os.Open(options.APIValues)
+			if err != nil {
+				return false, err
+			}
+			options.SetStdinReader(bufio.NewReader(f))
+			retv = true
+		} else {
+			// set the stdin reader to os.Stdin
+			options.SetStdinReader(bufio.NewReader(os.Stdin))
+			retv = true
+		}
+	}
+	return retv, nil
+}
+
 func ApplyParameters(client *client.ComfyClient, options *ComfyOptions, graph *graphapi.Graph, simple_api *graphapi.SimpleAPI, parameters []CLIParameter) (bool, error) {
 	// if we encounter any read from stdin, we need to set hasPipeLoop to true
 	hasPipeLoop := false
@@ -231,28 +294,19 @@ func ApplyParameters(client *client.ComfyClient, options *ComfyOptions, graph *g
 			return false, fmt.Errorf("apivalues specified but no SimpleAPI provided or found in the graph")
 		}
 
-		// if the APIValues is set to '-' then read from stdin
+		// if the APIValues is set, try to read the values from stdin or the file
 		var apivalues map[string]interface{} = nil
 		if options.APIValues != "" {
-			if options.APIValues == "-" {
-				jobj, err := ScanJsonFromReader(options.GetStdinReader())
-				if err != nil {
-					return false, err
-				}
-				hasPipeLoop = true
-				apivalues = jobj.(map[string]interface{})
-			} else {
-				// otherwise, create io.reader from the file path
-				f, err := os.Open(options.APIValues)
-				if err != nil {
-					return false, err
-				}
-				jobj, err := ScanJsonFromReader(f)
-				if err != nil {
-					return false, err
-				}
-				apivalues = jobj.(map[string]interface{})
+			jobj, scanner, err := ScanJsonFromReader(options.GetStdinReader(), options.JsonScanner)
+			options.JsonScanner = scanner
+			if err != nil {
+				return false, err
 			}
+			if jobj == nil {
+				return false, fmt.Errorf("no JSON object found in the input")
+			}
+			hasPipeLoop = true
+			apivalues = jobj.(map[string]interface{})
 		}
 
 		// if there are api values, apply them first
@@ -260,10 +314,12 @@ func ApplyParameters(client *client.ComfyClient, options *ComfyOptions, graph *g
 			targetprop, ok := simple_api.Properties[k]
 			if ok {
 				var err error
-				hasPipeLoop, err = setPropertValue(client, options, targetprop, v)
+				var pl bool
+				pl, err = setPropertValue(client, options, targetprop, v)
 				if err != nil {
 					return false, err
 				}
+				hasPipeLoop = hasPipeLoop || pl
 			} else {
 				slog.Error(fmt.Sprintf("Property %s not found in the SimpleAPI", k))
 			}
@@ -316,8 +372,10 @@ func ReadAndDeserializeJSON(dst interface{}, jsonInput string) error {
 	return nil
 }
 
-func ScanJsonFromReader(r io.Reader) (interface{}, error) {
-	scanner := bufio.NewScanner(r)
+func ScanJsonFromReader(r io.Reader, scanner *bufio.Scanner) (interface{}, *bufio.Scanner, error) {
+	if scanner == nil {
+		scanner = bufio.NewScanner(r)
+	}
 	var jsonBlock strings.Builder
 
 	var jobj interface{}
@@ -336,10 +394,10 @@ func ScanJsonFromReader(r io.Reader) (interface{}, error) {
 
 	if err := scanner.Err(); err != nil {
 		fmt.Fprintf(os.Stderr, "reading standard input: %v\n", err)
-		return nil, err
+		return nil, scanner, err
 	}
 
-	return jobj, nil
+	return jobj, scanner, nil
 }
 
 // func ListFiles(path string, topOnly bool) ([]string, error) {

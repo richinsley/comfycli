@@ -29,7 +29,8 @@ type ComfyOptions struct {
 	// API sub command options
 	APIValuesOnly bool // only output the values of the API nodes
 	Stdin         *bufio.Reader
-	Client        *client.ComfyClient
+	Clients       []*client.ComfyClient
+	JsonScanner   *bufio.Scanner
 }
 
 func (o *ComfyOptions) ApplyEnvironment() {
@@ -56,6 +57,10 @@ func (o *ComfyOptions) ApplyEnvironment() {
 	if viper.IsSet("nosavedata") {
 		o.NoSaveData = viper.GetBool("nosavedata")
 	}
+}
+
+func (o *ComfyOptions) SetStdinReader(r *bufio.Reader) {
+	o.Stdin = r
 }
 
 func (o *ComfyOptions) GetStdinReader() *bufio.Reader {
