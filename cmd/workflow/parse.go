@@ -31,7 +31,7 @@ comfycli workflow parse defaultworkflow.json -- "KSampler:seed"=1234 > newworkfl
 		params := args[1:] // All other args are considered parameters
 		parameters := util.ParseParameters(params)
 
-		workflow, _, missing, err := util.ClientWithWorkflow(0, CLIOptions, workflowPath, parameters, nil)
+		workflow, _, missing, err := util.ClientWithWorkflow(0, CLIOptions, workflowPath, parameters, nil, true)
 		if missing != nil {
 			slog.Error("failed to get workflow: missing nodes", "missing", fmt.Sprintf("%v", missing))
 			os.Exit(1)

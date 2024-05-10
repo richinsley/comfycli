@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/richinsley/comfycli/cmd/env"
 	"github.com/richinsley/comfycli/pkg"
@@ -33,6 +34,7 @@ func PreprocessOptions(cmd *cobra.Command, args []string) {
 	hosts := viper.GetStringSlice("host")
 	CLIOptions.Host = make([]string, len(hosts))
 	CLIOptions.Port = make([]int, len(hosts))
+	CLIOptions.JsonScannerMutex = &sync.Mutex{}
 	for i, host := range hosts {
 		if host != "" {
 			hostParts := strings.Split(host, ":")

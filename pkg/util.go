@@ -116,15 +116,6 @@ func outputSixelImageToStd(data *[]byte) {
 	sixel.NewEncoder(os.Stdout).Encode(img)
 }
 
-// func outputInlineImageToStd(data *[]byte, name string, width int, height int) {
-// 	// encode the image to base64
-// 	encoded := base64.StdEncoding.EncodeToString(*data)
-// 	// print the encoded string
-// 	os.Stdout.WriteString("\033]1337;File=inline=1:")
-// 	os.Stdout.WriteString(encoded)
-// 	os.Stdout.WriteString("\a\n")
-// }
-
 func outputInlineImageToStd(data *[]byte, name string, width int, height int) string {
 	encoded_data := base64.StdEncoding.EncodeToString(*data)
 	encoded_name := base64.StdEncoding.EncodeToString([]byte(name))
@@ -139,16 +130,6 @@ func outputInlineImageToStd(data *[]byte, name string, width int, height int) st
 	return retv
 }
 
-// func outputInlineImageToStd(data *[]byte, name string, width int, height int) string {
-// 	encoded_data := base64.StdEncoding.EncodeToString(*data)
-// 	encoded_name := base64.StdEncoding.EncodeToString([]byte(name))
-// 	retv := fmt.Sprintf("\033]1337;File=inline=1;size=%d;name=%s;width=%dpx;height=%dpx;preserveAspectRatio=0:%s\a\n", len(*data), encoded_name, width, height, encoded_data)
-// 	return retv
-// }
-
-// "\x1b]1337;File=inline=1;size=828488;name=Q29tZnlVSV90ZW1wX3Bvc2N4XzAwMDExXy5wbmc=;iVBORw0
-// "\x1b]1337;File=inline=1;size=834660;name=Q29tZnlVSV90ZW1wX3Bvc2N4XzAwMDE2Xy5wbmc=;preserveAspectRatio=1:iVBORw0KGgoAAAANSU
-// "\x1b]1337;File=inline=1;size=834660;name=Q29tZnlVSV90ZW1wX3Bvc2N4XzAwMDE4Xy5wbmc=;preserveAspectRatio=1:iVBORw0KGgoAAAANSU
 func OutputInlineToStd(data *[]byte, name string, width int, height int) {
 	os.Stdout.WriteString(outputInlineImageToStd(data, name, width, height))
 }
@@ -297,8 +278,12 @@ func ApplyParameters(client *client.ComfyClient, options *ComfyOptions, graph *g
 		// if the APIValues is set, try to read the values from stdin or the file
 		var apivalues map[string]interface{} = nil
 		if options.APIValues != "" {
+			// prevent concurrent access to the scanner
+			options.JsonScannerMutex.Lock()
 			jobj, scanner, err := ScanJsonFromReader(options.GetStdinReader(), options.JsonScanner)
 			options.JsonScanner = scanner
+			options.JsonScannerMutex.Unlock()
+
 			if err != nil {
 				return false, err
 			}

@@ -104,7 +104,7 @@ var canrunCmd = &cobra.Command{
 		parameters := util.ParseParameters(params)
 
 		// error outputs should go to stout instead of stderr
-		workflow, _, missing, err := util.ClientWithWorkflow(0, CLIOptions, workflowPath, parameters, nil)
+		workflow, _, missing, err := util.ClientWithWorkflow(0, CLIOptions, workflowPath, parameters, nil, true)
 		if err != nil && missing == nil {
 			// is err a fs.PathError?
 			if err, ok := err.(*os.PathError); ok {

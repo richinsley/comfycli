@@ -3,6 +3,7 @@ package pkg
 import (
 	"bufio"
 	"os"
+	"sync"
 
 	"github.com/richinsley/comfy2go/client"
 	"github.com/spf13/viper"
@@ -27,10 +28,11 @@ type ComfyOptions struct {
 	OutputNodes    string
 	NoSharedModels bool
 	// API sub command options
-	APIValuesOnly bool // only output the values of the API nodes
-	Stdin         *bufio.Reader
-	Clients       []*client.ComfyClient
-	JsonScanner   *bufio.Scanner
+	APIValuesOnly    bool // only output the values of the API nodes
+	Stdin            *bufio.Reader
+	Clients          []*client.ComfyClient
+	JsonScanner      *bufio.Scanner
+	JsonScannerMutex *sync.Mutex
 }
 
 func (o *ComfyOptions) ApplyEnvironment() {

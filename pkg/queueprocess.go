@@ -17,7 +17,13 @@ type WorkflowQueueProcessor struct {
 	Missing  *[]string
 }
 
-func ClientWithWorkflow(client_index int, options *ComfyOptions, workflowpath string, parameters []CLIParameter, callbacks *client.ComfyClientCallbacks) (*Workflow, bool, *[]string, error) {
+type WorkflowQueueDataOutputItems struct {
+	WorkItem int
+	Outputs  []map[string][]client.DataOutput
+	Client   *client.ComfyClient
+}
+
+func ClientWithWorkflow(client_index int, options *ComfyOptions, workflowpath string, parameters []CLIParameter, callbacks *client.ComfyClientCallbacks, applyparams bool) (*Workflow, bool, *[]string, error) {
 	workflow, missing, err := GetFullWorkflow(client_index, options, workflowpath, callbacks)
 	if missing != nil {
 		return nil, false, missing, err
@@ -27,7 +33,7 @@ func ClientWithWorkflow(client_index int, options *ComfyOptions, workflowpath st
 	}
 
 	hasPipeLoop := false
-	if parameters != nil {
+	if applyparams && (parameters != nil || workflow.SimpleAPI != nil) {
 		hasPipeLoop, err = ApplyParameters(workflow.Client, options, workflow.Graph, workflow.SimpleAPI, parameters)
 		if err != nil {
 			return nil, false, nil, err
@@ -42,15 +48,14 @@ func ClientWithWorkflow(client_index int, options *ComfyOptions, workflowpath st
 // GetWorkflowsAsync returns a channel of WorkflowQueueProcessor
 // that can be used to get the workflows asynchronously
 // nil is returned if there was an error creating the client
-func GetWorkflowsAsync(options *ComfyOptions, workflowpath string, parameters []CLIParameter) chan *WorkflowQueueProcessor {
-	retv := make(chan *WorkflowQueueProcessor, len(options.Host))
+func GetWorkflowsAsync(options *ComfyOptions, workflowpath string, parameters []CLIParameter) chan interface{} {
+	retv := make(chan interface{}, len(options.Host))
 
 	for i := 0; i < len(options.Host); i++ {
 		go func(i int) {
-			workflow, hasPipeLoop, missing, err := ClientWithWorkflow(i, options, workflowpath, parameters, nil)
+			workflow, hasPipeLoop, missing, err := ClientWithWorkflow(i, options, workflowpath, parameters, nil, false)
 			if err != nil {
-				slog.Error("Failed to create comfyui client", err)
-				retv <- nil
+				retv <- err
 				return
 			}
 			w := &WorkflowQueueProcessor{
@@ -66,24 +71,9 @@ func GetWorkflowsAsync(options *ComfyOptions, workflowpath string, parameters []
 }
 
 func GetWorkflows(options *ComfyOptions, workflowpath string, parameters []CLIParameter) []*WorkflowQueueProcessor {
-	// callbacks := &client.ComfyClientCallbacks{
-	// 	ClientQueueCountChanged: func(c *client.ComfyClient, queuecount int) {
-	// 		slog.Debug(fmt.Sprintf("Client %s Queue size: %d", c.ClientID(), queuecount))
-	// 	},
-	// 	QueuedItemStarted: func(c *client.ComfyClient, qi *client.QueueItem) {
-	// 		slog.Debug(fmt.Sprintf("Queued item %s started", qi.PromptID))
-	// 	},
-	// 	QueuedItemStopped: func(cc *client.ComfyClient, qi *client.QueueItem, reason client.QueuedItemStoppedReason) {
-	// 		slog.Debug(fmt.Sprintf("Queued item %s stopped", qi.PromptID))
-	// 	},
-	// 	QueuedItemDataAvailable: func(cc *client.ComfyClient, qi *client.QueueItem, pmd *client.PromptMessageData) {
-	// 		slog.Debug(fmt.Sprintf("Queued item %s data available", qi.PromptID))
-	// 	},
-	// }
-
 	retv := make([]*WorkflowQueueProcessor, 0)
 	for i := 0; i < len(options.Host); i++ {
-		workflow, hasPipeLoop, missing, err := ClientWithWorkflow(i, options, workflowpath, parameters, nil)
+		workflow, hasPipeLoop, missing, err := ClientWithWorkflow(i, options, workflowpath, parameters, nil, true)
 		if err != nil {
 			slog.Error("Failed to create comfyui client", err)
 			continue
@@ -98,14 +88,60 @@ func GetWorkflows(options *ComfyOptions, workflowpath string, parameters []CLIPa
 	return retv
 }
 
-func ProcessWorkerQueue(worker *WorkflowQueueProcessor, options *ComfyOptions, parameters []CLIParameter, workers chan *WorkflowQueueProcessor) {
+func HandleDataOutput(client *client.ComfyClient, options *ComfyOptions, output map[string][]client.DataOutput) {
+	// data objects have the fields: Filename, Subfolder, Type
+	// * Subfolder is the subfolder in the output directory
+	// * Type is the type of the image temp/
+	for k, v := range output {
+		if k == "images" || k == "gifs" {
+			for _, output := range v {
+				img_data, err := client.GetImage(output)
+				if err != nil {
+					slog.Error("Failed to get image", err)
+					os.Exit(1)
+				}
+
+				// what to do with the image data
+				if options.InlineImages {
+					// print the image to the terminal
+					OutputInlineToStd(img_data, output.Filename, -1, -1)
+				}
+
+				if !options.NoSaveData {
+					SaveData(img_data, output.Filename)
+				}
+
+				if options.DataToStdout {
+					_, err := os.Stdout.Write(*img_data)
+					if err != nil {
+						slog.Error("Failed to write data to stdout", err)
+						os.Exit(1)
+					}
+					os.Stdout.Sync()
+				}
+				slog.Debug(fmt.Sprintf("Got data file: %s", output.Filename))
+			}
+		} else if k == "text" {
+			for _, output := range v {
+				fmt.Println(output.Text)
+			}
+		}
+	}
+}
+
+func ProcessWorkerQueue(worker *WorkflowQueueProcessor, options *ComfyOptions, parameters []CLIParameter, workers chan *WorkflowQueueProcessor, workitem int, dataitems chan WorkflowQueueDataOutputItems) {
+	var dataouts []map[string][]client.DataOutput = nil
 	loop, err := ApplyParameters(worker.Workflow.Client, options, worker.Workflow.Graph, worker.Workflow.SimpleAPI, parameters)
 	if err != nil {
-		slog.Error("Failed to apply parameters", err)
+		if err.Error() != "no JSON object found in the input" {
+			slog.Error("Failed to apply parameters", err)
+		}
+		workers <- nil
 		return
 	}
 
 	if !loop {
+		workers <- nil
 		return
 	}
 
@@ -132,15 +168,6 @@ func ProcessWorkerQueue(worker *WorkflowQueueProcessor, options *ComfyOptions, p
 			outputnodeIDs[n.ID] = true
 		}
 	}
-
-	// if missing != nil {
-	// 	slog.Error("failed to get workflow: missing nodes", "missing", fmt.Sprintf("%v", missing))
-	// 	os.Exit(1)
-	// }
-	// if err != nil {
-	// 	slog.Error("Failed to create comfyui client", err)
-	// 	os.Exit(1)
-	// }
 
 	item, err := workflow.Client.QueuePrompt(workflow.Graph)
 	if err != nil {
@@ -183,60 +210,28 @@ func ProcessWorkerQueue(worker *WorkflowQueueProcessor, options *ComfyOptions, p
 			continueLoop = false
 		case "data":
 			qm := msg.ToPromptMessageData()
-			// data objects have the fields: Filename, Subfolder, Type
-			// * Subfolder is the subfolder in the output directory
-			// * Type is the type of the image temp/
-			for k, v := range qm.Data {
-				// if qm.NodeID is not in outputnodeIDs, then we ignore the data
-				if len(outputnodeIDs) != 0 {
-					if _, ok := outputnodeIDs[qm.NodeID]; !ok {
-						continue
-					}
-				}
-
-				if k == "images" || k == "gifs" {
-					for _, output := range v {
-						img_data, err := workflow.Client.GetImage(output)
-						if err != nil {
-							slog.Error("Failed to get image", err)
-							os.Exit(1)
-						}
-
-						// what to do with the image data
-						if options.InlineImages {
-							// print the image to the terminal
-							OutputInlineToStd(img_data, output.Filename, -1, -1)
-						}
-
-						if !options.NoSaveData {
-							SaveData(img_data, output.Filename)
-						}
-
-						if options.DataToStdout {
-							_, err := os.Stdout.Write(*img_data)
-							if err != nil {
-								slog.Error("Failed to write data to stdout", err)
-								os.Exit(1)
-							}
-							os.Stdout.Sync()
-						}
-						slog.Debug(fmt.Sprintf("Got data file: %s", output.Filename))
-					}
-				} else if k == "text" {
-					for _, output := range v {
-						fmt.Println(output.Text)
-					}
-				}
+			if dataitems != nil {
+				dataouts = append(dataouts, qm.Data)
+			} else {
+				HandleDataOutput(workflow.Client, options, qm.Data)
 			}
 		default:
 			slog.Warn(fmt.Sprintf("Unknown message type: %s", msg.Type))
 		}
 	}
 
+	if dataitems != nil {
+		// we want the outputs to be processed in the order they were received
+		dataitems <- WorkflowQueueDataOutputItems{
+			WorkItem: workitem,
+			Outputs:  dataouts,
+			Client:   workflow.Client,
+		}
+	}
 	workers <- worker
 }
 
-func ProcessQueue(options *ComfyOptions, workflowpath string, parameters []CLIParameter) bool {
+func ProcessQueue(options *ComfyOptions, workflowpath string, parameters []CLIParameter) (bool, error) {
 	// callbacks can be used respond to QueuedItem updates, or client status changes
 	callbacks := &client.ComfyClientCallbacks{
 		ClientQueueCountChanged: func(c *client.ComfyClient, queuecount int) {
@@ -253,8 +248,12 @@ func ProcessQueue(options *ComfyOptions, workflowpath string, parameters []CLIPa
 		},
 	}
 
-	workflow, hasPipeLoop, missing, err := ClientWithWorkflow(0, options, workflowpath, parameters, callbacks)
+	workflow, hasPipeLoop, missing, err := ClientWithWorkflow(0, options, workflowpath, parameters, callbacks, true)
 	if err != nil {
+		if err.Error() == "no JSON object found in the input" {
+			return false, err
+		}
+
 		slog.Error("Failed to create comfyui client", err)
 		os.Exit(1)
 	}
@@ -332,56 +331,12 @@ func ProcessQueue(options *ComfyOptions, workflowpath string, parameters []CLIPa
 			continueLoop = false
 		case "data":
 			qm := msg.ToPromptMessageData()
-			// data objects have the fields: Filename, Subfolder, Type
-			// * Subfolder is the subfolder in the output directory
-			// * Type is the type of the image temp/
-			for k, v := range qm.Data {
-				// if qm.NodeID is not in outputnodeIDs, then we ignore the data
-				if len(outputnodeIDs) != 0 {
-					if _, ok := outputnodeIDs[qm.NodeID]; !ok {
-						continue
-					}
-				}
-
-				if k == "images" || k == "gifs" {
-					for _, output := range v {
-						img_data, err := workflow.Client.GetImage(output)
-						if err != nil {
-							slog.Error("Failed to get image", err)
-							os.Exit(1)
-						}
-
-						// what to do with the image data
-						if options.InlineImages {
-							// print the image to the terminal
-							OutputInlineToStd(img_data, output.Filename, -1, -1)
-						}
-
-						if !options.NoSaveData {
-							SaveData(img_data, output.Filename)
-						}
-
-						if options.DataToStdout {
-							_, err := os.Stdout.Write(*img_data)
-							if err != nil {
-								slog.Error("Failed to write data to stdout", err)
-								os.Exit(1)
-							}
-							os.Stdout.Sync()
-						}
-						slog.Debug(fmt.Sprintf("Got data file: %s", output.Filename))
-					}
-				} else if k == "text" {
-					for _, output := range v {
-						fmt.Println(output.Text)
-					}
-				}
-			}
+			HandleDataOutput(workflow.Client, options, qm.Data)
 		default:
 			slog.Warn(fmt.Sprintf("Unknown message type: %s", msg.Type))
 		}
 	}
 
 	// return true if we read from a pipe
-	return hasPipeLoop
+	return hasPipeLoop, nil
 }

@@ -43,6 +43,10 @@ var fileserverCmd = &cobra.Command{
 		key, _ := cmd.Flags().GetString("key")
 		selfsigned, _ := cmd.Flags().GetBool("selfsigned")
 
+		if storage == "" {
+			storage = path
+		}
+
 		options := util.FileServerOptions{
 			Port:        port,
 			RootPath:    path,
@@ -84,7 +88,7 @@ func InitFileServe(systemCmd *cobra.Command) {
 	fileserverCmd.Flags().IntP("port", "", 8080, "Port to serve files on")
 
 	// storage path for uploaded files
-	fileserverCmd.Flags().StringP("storage", "", "", "Path to store uploaded files")
+	fileserverCmd.Flags().StringP("storage", "", "", "Alternate path to store uploaded files")
 
 	// optional auth token
 	fileserverCmd.Flags().StringP("auth", "", "", "Authorization token")
