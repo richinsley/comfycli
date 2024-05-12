@@ -27,6 +27,8 @@ type ComfyOptions struct {
 	GetVersion     bool
 	OutputNodes    string
 	NoSharedModels bool
+	// path to a file to read from stdin
+	StdinFile string
 	// API sub command options
 	APIValuesOnly    bool // only output the values of the API nodes
 	Stdin            *bufio.Reader
@@ -70,6 +72,17 @@ func (o *ComfyOptions) GetStdinReader() *bufio.Reader {
 		return o.Stdin
 	}
 
+	// if StdinFile is set, open the file and return the reader
+	if o.StdinFile != "" {
+		f, err := os.Open(o.StdinFile)
+		if err != nil {
+			return nil
+		}
+		o.Stdin = bufio.NewReader(f)
+		return o.Stdin
+	}
+
+	// if no file is set, return the default stdin reader
 	o.Stdin = bufio.NewReader(os.Stdin)
 	return o.Stdin
 }

@@ -169,66 +169,69 @@ func ProcessWorkerQueue(worker *WorkflowQueueProcessor, options *ComfyOptions, p
 		}
 	}
 
-	item, err := workflow.Client.QueuePrompt(workflow.Graph)
-	if err != nil {
-		slog.Error("Failed to queue prompt", err)
-		os.Exit(1)
-	}
-
-	// we'll provide a progress bar
-	var bar *progressbar.ProgressBar = nil
-
-	// continuously read messages from the QueuedItem until we get the "stopped" message type
-	var currentNodeTitle string
-	for continueLoop := true; continueLoop; {
-		msg := <-item.Messages
-		switch msg.Type {
-		case "started":
-			qm := msg.ToPromptMessageStarted()
-			slog.Debug(fmt.Sprintf("Start executing prompt ID %s\n", qm.PromptID))
-		case "executing":
-			bar = nil
-			qm := msg.ToPromptMessageExecuting()
-			// store the node's title so we can use it in the progress bar
-			currentNodeTitle = qm.Title
-			slog.Debug(fmt.Sprintf("Executing Node: %d", qm.NodeID))
-		case "progress":
-			// update our progress bar
-			qm := msg.ToPromptMessageProgress()
-			if bar == nil {
-				bar = progressbar.Default(int64(qm.Max), currentNodeTitle)
-			}
-			bar.Set(qm.Value)
-		case "stopped":
-			// if we were stopped for an exception, display the exception message
-			qm := msg.ToPromptMessageStopped()
-			if qm.Exception != nil {
-				slog.Error(fmt.Sprintf("ComfyUI exception in node %s", qm.Exception.NodeName))
-				slog.Error(qm.Exception.ExceptionMessage)
-				os.Exit(1)
-			}
-			continueLoop = false
-		case "data":
-			qm := msg.ToPromptMessageData()
-			if dataitems != nil {
-				dataouts = append(dataouts, qm.Data)
-			} else {
-				HandleDataOutput(workflow.Client, options, qm.Data)
-			}
-		default:
-			slog.Warn(fmt.Sprintf("Unknown message type: %s", msg.Type))
+	// run the queuprompt in a goroutine
+	go func() {
+		item, err := workflow.Client.QueuePrompt(workflow.Graph)
+		if err != nil {
+			slog.Error("Failed to queue prompt", err)
+			os.Exit(1)
 		}
-	}
 
-	if dataitems != nil {
-		// we want the outputs to be processed in the order they were received
-		dataitems <- WorkflowQueueDataOutputItems{
-			WorkItem: workitem,
-			Outputs:  dataouts,
-			Client:   workflow.Client,
+		// we'll provide a progress bar
+		var bar *progressbar.ProgressBar = nil
+
+		// continuously read messages from the QueuedItem until we get the "stopped" message type
+		var currentNodeTitle string
+		for continueLoop := true; continueLoop; {
+			msg := <-item.Messages
+			switch msg.Type {
+			case "started":
+				qm := msg.ToPromptMessageStarted()
+				slog.Debug(fmt.Sprintf("Start executing prompt ID %s\n", qm.PromptID))
+			case "executing":
+				bar = nil
+				qm := msg.ToPromptMessageExecuting()
+				// store the node's title so we can use it in the progress bar
+				currentNodeTitle = qm.Title
+				slog.Debug(fmt.Sprintf("Executing Node: %d", qm.NodeID))
+			case "progress":
+				// update our progress bar
+				qm := msg.ToPromptMessageProgress()
+				if bar == nil {
+					bar = progressbar.Default(int64(qm.Max), currentNodeTitle)
+				}
+				bar.Set(qm.Value)
+			case "stopped":
+				// if we were stopped for an exception, display the exception message
+				qm := msg.ToPromptMessageStopped()
+				if qm.Exception != nil {
+					slog.Error(fmt.Sprintf("ComfyUI exception in node %s", qm.Exception.NodeName))
+					slog.Error(qm.Exception.ExceptionMessage)
+					os.Exit(1)
+				}
+				continueLoop = false
+			case "data":
+				qm := msg.ToPromptMessageData()
+				if dataitems != nil {
+					dataouts = append(dataouts, qm.Data)
+				} else {
+					HandleDataOutput(workflow.Client, options, qm.Data)
+				}
+			default:
+				slog.Warn(fmt.Sprintf("Unknown message type: %s", msg.Type))
+			}
 		}
-	}
-	workers <- worker
+
+		if dataitems != nil {
+			// we want the outputs to be processed in the order they were received
+			dataitems <- WorkflowQueueDataOutputItems{
+				WorkItem: workitem,
+				Outputs:  dataouts,
+				Client:   workflow.Client,
+			}
+		}
+		workers <- worker
+	}()
 }
 
 func ProcessQueue(options *ComfyOptions, workflowpath string, parameters []CLIParameter) (bool, error) {

@@ -300,6 +300,9 @@ func init() {
 	CLIOptions.RecipesRepos = filepath.Join(CLIOptions.RecipesPath, "repos")
 	CLIOptions.PrettyJson = true
 
+	// path to a file that can be used to simumlate stdin
+	// available as COMFYCLI_STDIN_FILE environment variable
+	CLIOptions.StdinFile = viper.GetString("STDIN_FILE")
 	// add cobra subcommands
 	rootCmd.PersistentFlags().StringSliceVarP(&CLIOptions.Host, "host", "", []string{"127.0.0.1:8188"}, "Host address")
 	// rootCmd.PersistentFlags().StringVarP(&CLIOptions.Host, "host", "", "127.0.0.1:8188", "Host address")

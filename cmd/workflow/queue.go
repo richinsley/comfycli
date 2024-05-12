@@ -181,7 +181,7 @@ func batchQueueProcess(workercount int, workers chan *pkg.WorkflowQueueProcessor
 			}
 			continue
 		}
-		go pkg.ProcessWorkerQueue(w, CLIOptions, parameters, workers, workitem, dataitems)
+		pkg.ProcessWorkerQueue(w, CLIOptions, parameters, workers, workitem, dataitems)
 		workitem++
 	}
 
