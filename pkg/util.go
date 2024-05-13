@@ -316,13 +316,15 @@ func ApplyParameters(client *client.ComfyClient, options *ComfyOptions, graph *g
 		if param.API {
 			if prop, okparam := simple_api.Properties[param.Name]; okparam {
 				var err error
-				hasPipeLoop, err = setPropertValue(client, options, prop, param.Value)
+				pl, err := setPropertValue(client, options, prop, param.Value)
 				if err != nil {
 					return false, err
 				}
+				hasPipeLoop = hasPipeLoop || pl
 			} else {
 				slog.Error(fmt.Sprintf("Property %s not found in the SimpleAPI", param.Name))
 			}
+
 		} else {
 			var node *graphapi.GraphNode = nil
 			if param.NodeID != -1 {
